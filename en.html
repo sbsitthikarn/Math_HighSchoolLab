@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.5 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Parabola Lab (English)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600&family=Bai+Jamjuree:wght@500;600;700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<style>
+/* Layout: graph-paper ground; one tab bar; explorer = graph + controls, practice = level route + question sheet */
+:root{
+  --paper:#EEF3F2; --surface:#FFFFFF; --ink:#18222E; --muted:#5A6873; --line:#D3DDDB;
+  --grid-minor:#E2EBE9; --grid-major:#C3D3D0; --axis:#34424F;
+  --curve:#B0263F; --line2:#1D7A5A; --accent:#2B4C9B; --accent-ink:#FFFFFF; --accent-soft:#E7EDF9;
+  --good:#1C7549; --good-soft:#E2F2E8; --bad:#B23A2E; --bad-soft:#FBE9E6; --warn:#8A5A00; --warn-soft:#FBF1DC;
+  --f-display:"Bai Jamjuree","Anuphan",system-ui,sans-serif;
+  --f-body:"Anuphan","Bai Jamjuree",system-ui,sans-serif;
+  --f-math:"STIX Two Text","Cambria Math","Times New Roman",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F151A; --surface:#161F27; --ink:#E2E9EE; --muted:#93A2AE; --line:#2A3641;
+  --grid-minor:#1B252E; --grid-major:#283641; --axis:#9DABB7;
+  --curve:#FF6F86; --line2:#4FD1A1; --accent:#93AEFF; --accent-ink:#0E1520; --accent-soft:#1D2944;
+  --good:#5ED39C; --good-soft:#14302A; --bad:#FF8B7B; --bad-soft:#3A1F1C; --warn:#F2C15E; --warn-soft:#33290F;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F151A; --surface:#161F27; --ink:#E2E9EE; --muted:#93A2AE; --line:#2A3641;
+  --grid-minor:#1B252E; --grid-major:#283641; --axis:#9DABB7;
+  --curve:#FF6F86; --line2:#4FD1A1; --accent:#93AEFF; --accent-ink:#0E1520; --accent-soft:#1D2944;
+  --good:#5ED39C; --good-soft:#14302A; --bad:#FF8B7B; --bad-soft:#3A1F1C; --warn:#F2C15E; --warn-soft:#33290F;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background-color:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.65;
+  background-image:linear-gradient(var(--grid-minor) 1px,transparent 1px),linear-gradient(90deg,var(--grid-minor) 1px,transparent 1px);
+  background-size:24px 24px}
+.wrap{max-width:1140px;margin:0 auto;padding-block:22px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.25;text-wrap:balance;margin:0}
+.m{font-family:var(--f-math);font-size:1.08em;white-space:nowrap}
+.m i{font-style:italic}
+sup{font-size:.7em;line-height:0}
+
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:14px 24px;margin-bottom:18px}
+.brand{display:flex;gap:14px;align-items:center}
+.brand svg{flex:none}
+.eyebrow{font-size:.78rem;letter-spacing:.06em;color:var(--muted);text-transform:uppercase;font-weight:600}
+h1{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;letter-spacing:-.01em}
+h1 span{color:var(--curve)}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;flex-wrap:wrap}
+.tab{font:inherit;font-weight:600;font-size:.95rem;border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:7px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.tab:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.pad{padding:18px}
+.lead{color:var(--muted);max-width:68ch;margin:0 0 16px}
+
+/* Explorer */
+.ex-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.ex-grid{grid-template-columns:minmax(0,1fr)}}
+canvas.graph{display:block;width:100%;aspect-ratio:4/3;border-radius:8px}
+.graph-wrap{padding:10px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted);padding:4px 6px 2px}
+.legend b{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.seg{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.seg button{font:inherit;font-size:.86rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 10px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.slider{display:grid;grid-template-columns:2.2em minmax(0,1fr) 3.6em;align-items:center;gap:10px;margin:6px 0}
+.slider label{font-family:var(--f-math);font-style:italic;font-size:1.2rem}
+.slider output{font-variant-numeric:tabular-nums;text-align:right;font-weight:600}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.formula{font-size:1.15rem;padding:10px 12px;background:var(--accent-soft);border-radius:8px;margin:12px 0 6px;overflow-x:auto}
+.forms{display:grid;gap:4px;font-size:.92rem;margin:10px 0 0}
+.forms div{display:flex;flex-wrap:wrap;gap:2px 10px;justify-content:space-between;border-bottom:1px dashed var(--line);padding:5px 0}
+.forms span:first-child{color:var(--muted)}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:14px 0 0;font-size:.93rem}
+.facts dt{color:var(--muted)}
+.facts dd{margin:0;font-weight:500}
+.toggles{display:grid;gap:8px;margin-top:14px;font-size:.92rem}
+.toggles label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.toggles input[type=checkbox]{accent-color:var(--accent);width:17px;height:17px}
+.note{font-size:.88rem;padding:9px 12px;border-radius:8px;background:var(--warn-soft);color:var(--warn);margin-top:10px}
+.tv-wrap{overflow-x:auto;margin-top:10px}
+table.tv{border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:.92rem}
+table.tv th,table.tv td{border:1px solid var(--grid-major);padding:5px 10px;text-align:center;min-width:2.8em}
+table.tv th{background:var(--accent-soft);font-family:var(--f-math);font-style:italic;font-weight:600}
+.section-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.section-h h2{font-size:1.15rem}
+.section-h small{color:var(--muted)}
+
+/* Practice */
+.pr-grid{display:grid;grid-template-columns:270px minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:860px){.pr-grid{grid-template-columns:minmax(0,1fr)}}
+.levels{display:flex;flex-direction:column;gap:6px;padding:10px}
+@media (max-width:860px){.levels{flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory}.lvl{flex:0 0 210px;scroll-snap-align:start}}
+.lvl{font:inherit;text-align:left;display:grid;grid-template-columns:30px minmax(0,1fr);gap:4px 10px;align-items:center;border:1px solid transparent;background:transparent;color:var(--ink);padding:9px 10px;border-radius:8px;cursor:pointer}
+.lvl:hover{background:var(--accent-soft)}
+.lvl[aria-current="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.lvl .no{grid-row:span 2;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:700;border:1.5px solid var(--accent);color:var(--accent);font-size:.9rem}
+.lvl[aria-current="true"] .no{background:var(--accent);color:var(--accent-ink)}
+.lvl .nm{font-weight:600;font-size:.93rem;line-height:1.3}
+.lvl .meta{font-size:.76rem;color:var(--muted);display:flex;gap:8px;align-items:center}
+.bar{height:5px;border-radius:3px;background:var(--grid-major);flex:1;overflow:hidden;min-width:40px}
+.bar i{display:block;height:100%;background:var(--good)}
+.chip{font-size:.72rem;font-weight:600;padding:1px 7px;border-radius:20px;background:var(--good-soft);color:var(--good);white-space:nowrap}
+.levels-foot{padding:4px 10px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
+.qnav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding-bottom:12px;border-bottom:1px dashed var(--line)}
+.navbtn{font:inherit;font-size:.88rem;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--accent);padding:6px 12px;border-radius:7px;cursor:pointer}
+.navbtn:disabled{color:var(--muted);opacity:.5;cursor:default}
+.qpos{font-size:.85rem;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.pend{background:var(--accent-soft);color:var(--accent)}
+.fn-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fn-row .m{font-size:1.15rem}
+.fn-row input{font:inherit;font-family:var(--f-math);font-size:1.1rem;flex:1 1 160px;min-width:0;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.fn-row input.bad{border-color:var(--bad)}
+.fn-label{font-weight:600;font-size:.93rem;display:block;margin-bottom:6px}
+.fn-ex{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;font-size:.84rem;color:var(--muted)}
+.exchip{font:inherit;font-family:var(--f-math);font-size:.9rem;border:1px dashed var(--grid-major);background:transparent;color:var(--accent);padding:3px 9px;border-radius:20px;cursor:pointer}
+.exchip:hover{background:var(--accent-soft)}
+#fnErr{margin-top:10px}
+.explain{margin-top:16px}
+.explain h2{font-size:1.15rem;margin-bottom:4px}
+.explain ol{margin:10px 0 0;padding-left:1.4em;display:grid;gap:8px;max-width:80ch}
+.explain li{padding-left:4px}
+.srctag{font-size:.78rem;font-weight:600;letter-spacing:.03em;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:3px 9px;justify-self:start}
+.glock{font-size:.88rem;color:var(--muted);border:1.5px dashed var(--grid-major);border-radius:8px;padding:14px;text-align:center;max-width:560px}
+.part{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:14px}
+.pdone{gap:6px;opacity:.92}
+.pdone .prompt{font-size:.95rem}
+.plabel{font-family:var(--f-display);font-weight:700;color:var(--accent);display:flex;gap:10px;align-items:center}
+.plabel span{font-family:var(--f-body);font-weight:500;font-size:.8rem;color:var(--muted)}
+.pans{font-size:.92rem}
+.pdone details{font-size:.9rem}
+.pdone summary{cursor:pointer;color:var(--accent);font-weight:600}
+.pdone ol{margin:6px 0 0;padding-left:1.3em;display:grid;gap:4px}
+td.tin{padding:3px!important}
+td.tin input{font:inherit;font-variant-numeric:tabular-nums;width:4.4em;padding:5px 6px;border:1.5px solid var(--line);border-radius:6px;background:var(--surface);color:var(--ink);text-align:center}
+td.tin input.bad{border-color:var(--bad);background:var(--bad-soft)}
+td.tin input.ok{border-color:var(--good);background:var(--good-soft)}
+.linkbtn{font:inherit;font-size:.8rem;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;padding:4px}
+.linkbtn.armed{color:var(--bad);font-weight:600}
+
+.qhead{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 16px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}
+.qhead h2{font-size:1.05rem}
+.qhead .lvldesc{font-size:.84rem;color:var(--muted)}
+.stats{display:flex;gap:6px;flex-wrap:wrap}
+.stat{font-size:.8rem;border:1px solid var(--line);border-radius:20px;padding:2px 10px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.stat b{color:var(--ink)}
+.qbody{padding:18px;display:grid;gap:14px}
+.prompt{font-size:1.06rem;max-width:72ch}
+.prompt p{margin:0 0 8px}
+.qgraph{max-width:560px}
+.opts{display:grid;gap:8px}
+.opt{font:inherit;text-align:left;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 14px;border-radius:8px;cursor:pointer;display:flex;gap:10px;align-items:center}
+.opt .k{font-family:var(--f-display);font-weight:700;color:var(--muted);width:1.4em;flex:none}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.fields{display:flex;flex-wrap:wrap;gap:10px 18px}
+.fld{display:flex;align-items:center;gap:8px}
+.fld span{font-size:.95rem}
+.fld input{font:inherit;font-variant-numeric:tabular-nums;width:7.5em;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink)}
+.fld input.bad{border-color:var(--bad);background:var(--bad-soft)}
+.fld input.ok{border-color:var(--good);background:var(--good-soft)}
+.inhelp{font-size:.8rem;color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font:inherit;font-weight:600;font-size:.94rem;border-radius:8px;padding:9px 16px;cursor:pointer;border:1.5px solid var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.ghost{background:transparent;color:var(--accent)}
+.fb{padding:10px 14px;border-radius:8px;font-size:.95rem}
+.fb.good{background:var(--good-soft);color:var(--good)}
+.fb.bad{background:var(--bad-soft);color:var(--bad)}
+.fb.warn{background:var(--warn-soft);color:var(--warn)}
+.fb.hint{background:var(--accent-soft);color:var(--ink)}
+.fb b{font-weight:600}
+.sol{border-top:1px dashed var(--line);padding-top:12px}
+.sol h3{font-size:.98rem;margin-bottom:6px}
+.sol ol{margin:0;padding-left:1.3em;display:grid;gap:5px}
+.sol li{padding-left:2px}
+
+/* Notes */
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px}
+.notes .card h3{font-size:1.04rem;margin-bottom:8px}
+.notes ul{margin:8px 0 0;padding-left:1.2em;display:grid;gap:4px;font-size:.94rem}
+.notes canvas.graph{aspect-ratio:16/9;margin-top:6px}
+.tag{display:inline-block;font-size:.72rem;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:2px}
+footer{margin-top:26px;font-size:.8rem;color:var(--muted)}
+@media (prefers-reduced-motion: no-preference){.opt,.lvl,.tab,.btn{transition:background-color .15s,border-color .15s}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <svg width="52" height="44" viewBox="0 0 52 44" aria-hidden="true">
+        <path d="M2 40H50M26 2V42" stroke="var(--axis)" stroke-width="1.6" fill="none"/>
+        <path d="M6 6 Q26 70 46 6" stroke="var(--curve)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="26" cy="38" r="3.4" fill="var(--surface)" stroke="var(--curve)" stroke-width="2"/>
+      </svg>
+      <div>
+        <div class="eyebrow">Mathematics · Grade 9 · Graphs of Quadratic Functions</div>
+        <h1>Parabola <span>Lab</span></h1>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="App sections">
+      <button class="tab" role="tab" id="tab-explore" aria-controls="p-explore" aria-selected="true">Explore</button>
+      <button class="tab" role="tab" id="tab-practice" aria-controls="p-practice" aria-selected="false">Practice</button>
+      <button class="tab" role="tab" id="tab-notes" aria-controls="p-notes" aria-selected="false">Summary</button>
+    </nav>
+  </header>
+
+  <!-- EXPLORER -->
+  <section id="p-explore" role="tabpanel" aria-labelledby="tab-explore">
+    <p class="lead">Move the sliders and watch how the graph changes. You can write the equation in three forms; each one describes the same parabola.</p>
+    <div class="ex-grid">
+      <div class="card graph-wrap">
+        <canvas class="graph" id="exGraph" aria-label="Adjustable graph of a quadratic function"></canvas>
+        <div class="legend">
+          <span><b style="background:var(--curve)"></b>Your graph</span>
+          <span id="lgGhost"><b style="background:var(--muted)"></b>y = x² (for comparison)</span>
+          <span id="lgK" hidden><b style="background:var(--line2)"></b>Line y = k</span>
+        </div>
+        <div class="tv-wrap" id="exTable" hidden></div>
+      </div>
+      <div class="card pad">
+        <div class="seg" role="group" aria-label="Form of the equation">
+          <button data-mode="std" aria-pressed="true">y = ax² + bx + c</button>
+          <button data-mode="vtx" aria-pressed="false">y = a(x − h)² + k</button>
+          <button data-mode="fac" aria-pressed="false">y = a(x − p)(x − q)</button>
+          <button data-mode="custom" aria-pressed="false">✎ Type your own</button>
+        </div>
+        <div id="exSliders"></div>
+        <div id="customBox" hidden>
+          <label class="fn-label" for="fnIn">Type your own quadratic function</label>
+          <div class="fn-row"><span class="m"><i>y</i> =</span><input id="fnIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="e.g. 2x^2 - 3x + 1" value="x^2 - 4x + 3"><button class="btn primary" id="fnGo">Plot</button></div>
+          <div class="inhelp" style="margin-top:6px">Use ^ for powers (x^2) · brackets are fine · general, completed-square and factorised forms all work</div>
+          <div class="fn-ex"><span>Try:</span><button class="exchip" data-f="x^2 - 4x + 3">x^2 - 4x + 3</button><button class="exchip" data-f="-2(x - 1)^2 + 8">-2(x - 1)^2 + 8</button><button class="exchip" data-f="(x + 2)(x - 3)">(x + 2)(x - 3)</button><button class="exchip" data-f="0.5x^2 + x - 4">0.5x^2 + x - 4</button><button class="exchip" data-f="x^2 + 2x + 5">x^2 + 2x + 5</button><button class="exchip" data-f="-x(x - 6)">-x(x - 6)</button><button class="exchip" data-f="(2x - 1)^2">(2x - 1)^2</button></div>
+          <div id="fnErr" class="fb bad" hidden></div>
+        </div>
+        <div class="formula" id="exFormula"></div>
+        <div id="exNote"></div>
+        <div class="forms" id="exForms"></div>
+        <dl class="facts" id="exFacts"></dl>
+        <div class="toggles">
+          <label><input type="checkbox" id="tgGhost" checked> Show y = x² to compare the width</label>
+          <label><input type="checkbox" id="tgTable"> Show a table of values</label>
+          <label><input type="checkbox" id="tgK"> Draw the line y = k to solve graphically</label>
+          <div class="slider" id="kRow" hidden>
+            <label for="slK">k</label><input type="range" id="slK" min="-10" max="10" step="0.5" value="2"><output id="outK">2</output>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card pad explain" id="explain" hidden>
+      <h2>Step-by-step analysis</h2>
+      <div class="inhelp">How each key feature of the graph comes from the equation you typed. The marked points on the graph match these steps.</div>
+      <ol id="explainList"></ol>
+    </div>
+  </section>
+
+  <!-- PRACTICE -->
+  <section id="p-practice" role="tabpanel" aria-labelledby="tab-practice" hidden>
+    <p class="lead">Work through levels 1 → 6, from the basics to applied problems. Levels 7–8 are multi-part questions in the style of the textbook exercises. Questions are randomly generated each time. You get one retry before the full worked solution is shown.</p>
+    <div class="pr-grid">
+      <div class="card">
+        <div class="levels" id="levels"></div>
+        <div class="levels-foot"><span>Progress is saved on this device</span><button class="linkbtn" id="resetBtn">Reset</button></div>
+      </div>
+      <div class="card" id="qcard">
+        <div class="qhead">
+          <div><h2 id="qTitle"></h2><div class="lvldesc" id="qDesc"></div></div>
+          <div class="stats"><span class="stat">This session <b id="stN">0</b></span><span class="stat">Correct <b id="stC">0</b></span><span class="stat">Streak <b id="stS">0</b></span></div>
+        </div>
+        <div class="qbody" id="qbox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTES -->
+  <section id="p-notes" role="tabpanel" aria-labelledby="tab-notes" hidden>
+    <p class="lead">Key ideas from Graphs of Quadratic Functions. Review them before you practise.</p>
+    <div class="notes">
+      <div class="card pad">
+        <span class="tag">General form</span>
+        <h3><span class="m"><i>y</i> = <i>ax</i><sup>2</sup> + <i>bx</i> + <i>c</i></span>, <span class="m"><i>a</i> ≠ 0</span></h3>
+        <canvas class="graph" id="nG1" aria-label="Examples of graphs opening upwards and downwards"></canvas>
+        <ul>
+          <li><span class="m"><i>a</i> &gt; 0</span> opens upwards with a minimum point · <span class="m"><i>a</i> &lt; 0</span> opens downwards with a maximum point</li>
+          <li>The closer <span class="m"><i>a</i></span> is to 0, the wider the graph</li>
+          <li>The graph cuts the y-axis at exactly one point, <span class="m">(0, <i>c</i>)</span></li>
+          <li>The line of symmetry <span class="m"><i>x</i> = −<i>b</i> ÷ 2<i>a</i></span> passes through the turning point</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <span class="tag">Completed-square form</span>
+        <h3><span class="m"><i>y</i> = <i>a</i>(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i></span></h3>
+        <canvas class="graph" id="nG2" aria-label="Example graph in completed-square form"></canvas>
+        <ul>
+          <li>The turning point is <span class="m">(<i>h</i>, <i>k</i>)</span> and the line of symmetry is <span class="m"><i>x</i> = <i>h</i></span></li>
+          <li>Watch the sign: <span class="m">(<i>x</i> + 3)<sup>2</sup></span> means <span class="m"><i>h</i> = −3</span></li>
+          <li>Completing the square: <span class="m"><i>x</i><sup>2</sup> + <i>bx</i> = (<i>x</i> + <i>b</i>/2)<sup>2</sup> − (<i>b</i>/2)<sup>2</sup></span></li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <span class="tag">Factorised form</span>
+        <h3><span class="m"><i>y</i> = ±(<i>x</i> − <i>p</i>)(<i>x</i> − <i>q</i>)</span></h3>
+        <canvas class="graph" id="nG3" aria-label="Example graph in factorised form"></canvas>
+        <ul>
+          <li>The graph cuts the x-axis at <span class="m"><i>x</i> = <i>p</i></span> and <span class="m"><i>x</i> = <i>q</i></span></li>
+          <li>The line of symmetry is halfway between: <span class="m"><i>x</i> = (<i>p</i> + <i>q</i>) ÷ 2</span></li>
+          <li>The y-intercept is <span class="m"><i>pq</i></span> (or <span class="m">−<i>pq</i></span> when the bracket has a minus sign in front)</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <span class="tag">Graphical method</span>
+        <h3>Solving quadratic equations graphically</h3>
+        <ul>
+          <li>The roots of <span class="m"><i>ax</i><sup>2</sup> + <i>bx</i> + <i>c</i> = 0</span> are the x-coordinates where the graph cuts the x-axis</li>
+          <li>Cuts twice → 2 distinct roots · touches once → repeated roots · never meets → no real roots</li>
+          <li>To solve <span class="m"><i>f</i>(<i>x</i>) = <i>k</i></span>, draw the line <span class="m"><i>y</i> = <i>k</i></span> and read the x-coordinates of the intersections</li>
+          <li>To solve <span class="m"><i>f</i>(<i>x</i>) = <i>mx</i> + <i>d</i></span>, draw the line <span class="m"><i>y</i> = <i>mx</i> + <i>d</i></span> on the same axes</li>
+          <li>Rearrange so one side matches the graph you have; the other side is the line to draw</li>
+        </ul>
+      </div>
+      <div class="card pad">
+        <span class="tag">Applications</span>
+        <h3>Applied problems</h3>
+        <ul>
+          <li>The maximum or minimum of a quantity is the y-coordinate of the turning point, reached when x (or t) equals its x-coordinate</li>
+          <li>The value at <span class="m"><i>t</i> = 0</span> is the starting value, such as the height of a building</li>
+          <li>When an object hits the ground, <span class="m"><i>h</i> = 0</span>; keep only answers that make sense (<span class="m"><i>t</i> ≥ 0</span>)</li>
+          <li>Use symmetry: points at the same height are the same distance from the line of symmetry</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer>Based on New Discovering Mathematics 3A, Chapters 1 and 3 · Works on tablets and phones · <a href="index.html" style="color:var(--accent)">ภาษาไทย</a></footer>
+</div>
+
+<script>
+/* ===================== helpers (pure) ===================== */
+const R=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const nz=(a,b)=>{let v;do v=R(a,b);while(v===0);return v;};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+function num(x){if(!isFinite(x))return '—';let v=Math.round(x*1000)/1000;if(v===0)v=0;return (v<0?'−':'')+String(Math.abs(v));}
+function approx(x){const r=Math.round(x*100)/100;return (Math.abs(r-x)>1e-9?'≈ ':'')+num(r);}
+function coefAbs(ab){if(ab===0.5)return '½';if(ab===0.25)return '¼';if(ab===0.75)return '¾';return num(ab);}
+function coefPre(a){return a===1?'':a===-1?'−':(a<0?'−':'')+coefAbs(Math.abs(a));}
+function terms(list,v='x'){let out='';for(const [k,p] of list){if(k===0)continue;const neg=k<0,ab=Math.abs(k);let body;
+  if(p===0)body=num(ab);else body=(ab===1?'':coefAbs(ab))+`<i>${v}</i>`+(p===2?'<sup>2</sup>':'');
+  out+=out===''?(neg?'−':'')+body:(neg?' − ':' + ')+body;}return out||'0';}
+const P=(a,b,c,v='x')=>terms([[a,2],[b,1],[c,0]],v);
+function fac(p,v='x'){if(p===0)return `<i>${v}</i>`;return `(<i>${v}</i> ${p>0?'−':'+'} ${num(Math.abs(p))})`;}
+function facForm(a,p,q,v='x'){const pre=coefPre(a);if(p===0)return pre+`<i>${v}</i>`+fac(q,v);if(q===0)return pre+`<i>${v}</i>`+fac(p,v);if(p===q)return pre+fac(p,v)+'<sup>2</sup>';return pre+fac(p,v)+fac(q,v);}
+function sq(h,v='x'){return h===0?`<i>${v}</i><sup>2</sup>`:`(<i>${v}</i> ${h>0?'−':'+'} ${num(Math.abs(h))})<sup>2</sup>`;}
+function vForm(a,h,k,v='x'){let s=coefPre(a)+sq(h,v);if(k!==0)s+=k>0?` + ${num(k)}`:` − ${num(-k)}`;return s;}
+const M=s=>`<span class="m">${s}</span>`;
+const Y=s=>M('<i>y</i> = '+s);
+function sumLine(vals){let o='';vals.forEach((v,i)=>{if(i===0)o=num(v);else if(v!==0)o+=v<0?` − ${num(-v)}`:` + ${num(v)}`;});return o;}
+function subst(a,b,c,x,v='x'){let s=`${coefPre(a)}(${num(x)})<sup>2</sup>`;if(b!==0)s+=` ${b<0?'−':'+'} ${Math.abs(b)===1?'':num(Math.abs(b))}(${num(x)})`;if(c!==0)s+=` ${c<0?'−':'+'} ${num(Math.abs(c))}`;return s;}
+function mcq(items){const sh=shuffle(items);return {type:'mcq',options:sh.map(i=>i[0]),correct:sh.findIndex(i=>i[1])};}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b];}return a;}
+function frac(n,d){const g=gcd(n,d)||1;n/=g;d/=g;if(d<0){n=-n;d=-d;}return d===1?num(n):`${n<0?'−':''}${Math.abs(n)}/${d}`;}
+
+function autoSpec(a,b,c,opt={}){const h=-b/(2*a),k=a*h*h+b*h+c,f=x=>a*x*x+b*x+c;const span=opt.span||(Math.abs(a)>=2?3.5:5);
+  let x0=Math.floor(h-span),x1=Math.ceil(h+span);if(x0>-1&&x0<3)x0=-1;if(x1<1&&x1>-3)x1=1;
+  const ys=[k,f(x0),f(x1),0];if(x0<=0&&x1>=0)ys.push(c);(opt.extraY||[]).forEach(y=>ys.push(y));
+  const lo=Math.min(...ys),hi=Math.max(...ys),pd=Math.max(1,(hi-lo)*0.08);
+  return {xr:[x0,x1],yr:[lo-pd,hi+pd],curves:[{f}],vlines:opt.noSym?[]:[{x:h,label:'x = '+num(h)}],points:opt.noTp?[]:[{x:h,y:k,label:`(${num(h)}, ${num(k)})`}]};}
+function rangeFor(f,xr,extra=[]){const ys=[0,...extra];for(let i=0;i<=40;i++)ys.push(f(xr[0]+(xr[1]-xr[0])*i/40));let lo=Math.min(...ys),hi=Math.max(...ys);const pd=Math.max(1,(hi-lo)*0.07);return [Math.floor(lo-pd),Math.ceil(hi+pd)];}
+
+/* ===================== question generators ===================== */
+/* Level 1 — basics */
+function gDir(){const a=nz(-4,4),b=R(-6,6),c=R(-6,6),rev=Math.random()<.45;
+  const expr=rev?terms([[c,0],[b,1],[a,2]]):P(a,b,c);
+  return {prompt:`<p>Does the graph of ${Y(expr)} open upwards or downwards, and what kind of turning point does it have?</p>`,
+    ans:mcq([['Opens upwards, with a minimum point',a>0],['Opens downwards, with a maximum point',a<0]]),
+    hint:`Look only at the coefficient of ${M('<i>x</i><sup>2</sup>')}, not at whichever term is written first.`,
+    steps:[`The coefficient of ${M('<i>x</i><sup>2</sup>')} is ${M('<i>a</i> = '+num(a))}.`,a>0?`${M('<i>a</i> &gt; 0')}, so the graph opens upwards and the turning point is a minimum point.`:`${M('<i>a</i> &lt; 0')}, so the graph opens downwards and the turning point is a maximum point.`],
+    solGraph:autoSpec(a,b,c)};}
+function gYint(){const v=pick(['std','fac','vtx']);let expr,yi,steps,spec;
+  if(v==='std'){const a=nz(-3,3),b=R(-6,6),c=nz(-8,8);expr=P(a,b,c);yi=c;steps=[`Substitute ${M('<i>x</i> = 0')}: ${M('<i>y</i> = '+subst(a,b,c,0))}`,`Every term containing x becomes 0, leaving ${M('<i>y</i> = '+num(c))}, which is the value of c.`];spec=autoSpec(a,b,c);}
+  else if(v==='fac'){let p=nz(-5,5),q;do q=nz(-5,5);while(q===p);const s=pick([1,-1]);expr=facForm(s,p,q);yi=s*p*q;
+    steps=[`Substitute ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = ${s<0?'−':''}(0 ${p>0?'−':'+'} ${Math.abs(p)})(0 ${q>0?'−':'+'} ${Math.abs(q)})`)}`,`${M(`= ${s<0?'−':''}(${num(-p)})(${num(-q)}) = ${num(yi)}`)}`];spec=autoSpec(s,-s*(p+q),s*p*q);}
+  else {const a=pick([1,-1,2,-2]),h=nz(-4,4),k=R(-6,6);expr=vForm(a,h,k);yi=a*h*h+k;
+    steps=[`Substitute ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = ${coefPre(a)}(0 ${h>0?'−':'+'} ${Math.abs(h)})<sup>2</sup> ${k<0?'−':'+'} ${Math.abs(k)}`)}`,`${M(`= ${num(a)} × ${num(h*h)} ${k<0?'−':'+'} ${Math.abs(k)} = ${num(yi)}`)}`];spec=autoSpec(a,-2*a*h,a*h*h+k);}
+  spec.points.push({x:0,y:yi,label:`(0, ${num(yi)})`});
+  return {prompt:`<p>Find the y-intercept of the graph of ${Y(expr)}.</p>`,ans:{type:'fields',fields:[{label:'y-intercept =',ans:yi}]},
+    hint:`The graph cuts the y-axis where ${M('<i>x</i> = 0')}.`,steps:[...steps,`The graph cuts the y-axis at ${M(`(0, ${num(yi)})`)}.`],solGraph:spec};}
+function gIsQuad(){const Q=['<i>y</i> = 5 − <i>x</i><sup>2</sup>','<i>y</i> = <i>x</i>(<i>x</i> − 3)','<i>y</i> = (<i>x</i> + 2)<sup>2</sup> − 1','<i>y</i> = −2<i>x</i><sup>2</sup> + 7<i>x</i>','<i>y</i> = ½<i>x</i><sup>2</sup> + 4'];
+  const N=shuffle(['<i>y</i> = 4<i>x</i> − 1','<i>y</i> = <i>x</i><sup>3</sup> + <i>x</i>','<i>y</i> = 3 ÷ <i>x</i>','<i>y</i> = 2<sup><i>x</i></sup>','<i>y</i> = 7','<i>y</i> = 0<i>x</i><sup>2</sup> + 5<i>x</i>','<i>y</i> = <i>x</i>(<i>x</i><sup>2</sup> − 1)']).slice(0,3);
+  const q=pick(Q);
+  return {prompt:`<p>Which of the following is a quadratic function?</p>`,ans:mcq([[M(q),true],...N.map(n=>[M(n),false])]),
+    hint:'Rewrite each one in the form y = ax² + bx + c, then check that the highest power of x is 2 and a ≠ 0.',
+    steps:[`A quadratic function has the form ${Y('<i>ax</i><sup>2</sup> + <i>bx</i> + <i>c</i>')} where ${M('<i>a</i> ≠ 0')}.`,`After expanding or rearranging ${M(q)}, the highest power of x is 2, so it is a quadratic function.`,`The other options have a highest power of 1 or 3, have x in a denominator or an exponent, or have a = 0.`]};}
+function gWider(){const pool=[0.5,1,2,3,-0.5,-1,-2,-3];let a1,a2;do{a1=pick(pool);a2=pick(pool);}while(Math.abs(a1)===Math.abs(a2));
+  const c1=R(-3,3),c2=R(-3,3),wide=Math.abs(a1)<Math.abs(a2)?1:2;
+  return {prompt:`<p>Which graph is wider?</p>`,ans:mcq([[`The graph of ${Y(P(a1,0,c1))}`,wide===1],[`The graph of ${Y(P(a2,0,c2))}`,wide===2]]),
+    hint:'Compare the absolute value of a and ignore its sign. The value closer to 0 gives the wider graph.',
+    steps:[`Compare ${M('|<i>a</i>|')}: ${M(coefAbs(Math.abs(a1)))} and ${M(coefAbs(Math.abs(a2)))}.`,`The closer a is to 0, the wider the graph, so the graph with ${M('|<i>a</i>| = '+coefAbs(Math.min(Math.abs(a1),Math.abs(a2))))} is wider.`,`The sign of a only decides whether the graph opens up or down, and c only shifts it up or down. Neither changes the width.`],
+    solGraph:{xr:[-5,5],yr:[-10,10],curves:[{f:x=>a1*x*x+c1},{f:x=>a2*x*x+c2,color:'l2'}],points:[],vlines:[]}};}
+
+/* Level 2 — table of values & substitution */
+function gEval(){const a=nz(-3,3),b=R(-6,6),c=R(-6,6),x=nz(-4,4),y=a*x*x+b*x+c,v=Math.random()<.5;
+  return {prompt:v?`<p>Given ${Y(P(a,b,c))}, find the value of ${M('<i>y</i>')} when ${M('<i>x</i> = '+num(x))}.</p>`:`<p>The point ${M(`(${num(x)}, <i>k</i>)`)} lies on the graph of ${Y(P(a,b,c))}. Find the value of ${M('<i>k</i>')}.</p>`,
+    ans:{type:'fields',fields:[{label:v?'y =':'k =',ans:y}]},
+    hint:`Substitute ${M('<i>x</i> = '+num(x))} everywhere. Remember that ${M(`(${num(x)})<sup>2</sup> = ${num(x*x)}`)} is always positive.`,
+    steps:[`Substitute ${M('<i>x</i> = '+num(x))}: ${M((v?'<i>y</i>':'<i>k</i>')+' = '+subst(a,b,c,x))}`,M('= '+sumLine([a*x*x,b*x,c])),M(`${v?'<i>y</i>':'<i>k</i>'} = ${num(y)}`)]};}
+function gTable(){const a=pick([1,-1,2,-2,1,-1]),b=R(-5,5),c=R(-6,6),sh=R(-2,1),xs=[-2,-1,0,1,2,3].map(v=>v+sh),f=x=>a*x*x+b*x+c;
+  let i1=R(0,5),i2;do i2=R(0,5);while(i2===i1);if(i1>i2)[i1,i2]=[i2,i1];
+  const cell=i=>i===i1?'<i>p</i>':i===i2?'<i>q</i>':num(f(xs[i]));
+  const tbl=`<div class="tv-wrap"><table class="tv"><tr><th>x</th>${xs.map(x=>`<td>${num(x)}</td>`).join('')}</tr><tr><th>y</th>${xs.map((x,i)=>`<td>${cell(i)}</td>`).join('')}</tr></table></div>`;
+  return {prompt:`<p>The table of values below is for ${Y(P(a,b,c))}. Find the values of ${M('<i>p</i>')} and ${M('<i>q</i>')}.</p>${tbl}`,
+    ans:{type:'fields',fields:[{label:'p =',ans:f(xs[i1])},{label:'q =',ans:f(xs[i2])}]},
+    hint:'Substitute the x-value in the same column as p (and q) into the equation, then check using the symmetry of the y-values.',
+    steps:[`${M('<i>p</i>')}: substitute ${M('<i>x</i> = '+num(xs[i1]))} → ${M(subst(a,b,c,xs[i1]))} ${M('= '+num(f(xs[i1])))}`,`${M('<i>q</i>')}: substitute ${M('<i>x</i> = '+num(xs[i2]))} → ${M(subst(a,b,c,xs[i2]))} ${M('= '+num(f(xs[i2])))}`,`Check: y-values the same distance from the line of symmetry ${M('<i>x</i> = '+num(-b/(2*a)))} must be equal.`]};}
+function gPoints(){const a=pick([1,-1,2]),c=R(-6,6),b=nz(-5,5),x1=nz(-3,3),y1=a*x1*x1+b*x1+c;
+  const form=`${coefPre(a)}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>`;
+  return {prompt:`<p>The graph of ${Y(form)} passes through ${M(`(0, ${num(c)})`)} and ${M(`(${num(x1)}, ${num(y1)})`)}. Find the values of ${M('<i>b</i>')} and ${M('<i>c</i>')}.</p>`,
+    ans:{type:'fields',fields:[{label:'b =',ans:b},{label:'c =',ans:c}]},
+    hint:'The point with x-coordinate 0 gives c straight away. Then substitute the other point to find b.',
+    steps:[`Substitute ${M(`(0, ${num(c)})`)}: ${M(`${num(c)} = 0 + 0 + <i>c</i>`)}, so ${M('<i>c</i> = '+num(c))}.`,`Substitute ${M(`(${num(x1)}, ${num(y1)})`)}: ${M(`${num(y1)} = ${coefPre(a)}(${num(x1)})<sup>2</sup> + <i>b</i>(${num(x1)}) ${c<0?'−':'+'} ${num(Math.abs(c))}`)}`,`${M(`${num(y1)} = ${num(a*x1*x1+c)} + (${num(x1)})<i>b</i>`)} → ${M(`(${num(x1)})<i>b</i> = ${num(y1-a*x1*x1-c)}`)} → ${M('<i>b</i> = '+num(b))}`],
+    solGraph:Object.assign(autoSpec(a,b,c),{points:[{x:0,y:c,label:`(0, ${num(c)})`},{x:x1,y:y1,label:`(${num(x1)}, ${num(y1)})`}]})};}
+
+/* Level 3 — key features */
+function gFac(){let p=R(-5,5),q;do q=R(-5,5);while(q===p);if(p>q)[p,q]=[q,p];const s=pick([1,-1]),sub=pick(['xint','sym','yint','tp']);
+  const h=(p+q)/2,k=s*(h-p)*(h-q),yi=s*p*q,ex=Y(facForm(s,p,q)),spec=autoSpec(s,-s*(p+q),s*p*q);
+  spec.points.push({x:p,y:0,label:num(p)},{x:q,y:0,label:num(q)});
+  const base={hint:`The form ${M('±(<i>x</i> − <i>p</i>)(<i>x</i> − <i>q</i>)')} gives the x-intercepts directly, and the line of symmetry lies halfway between p and q.`,solGraph:spec};
+  const sx=[`Let ${M('<i>y</i> = 0')}: ${M(fac(p)+' = 0')} or ${M(fac(q)+' = 0')}`,`So ${M('<i>x</i> = '+num(p))} or ${M('<i>x</i> = '+num(q))}.`];
+  if(sub==='xint')return {...base,prompt:`<p>Find the x-intercepts of the graph of ${ex}.</p>`,ans:{type:'fields',unordered:true,fields:[{label:'x₁ =',ans:p},{label:'x₂ =',ans:q}]},steps:sx};
+  if(sub==='sym')return {...base,prompt:`<p>Find the equation of the line of symmetry of the graph of ${ex}, in the form ${M('<i>x</i> = …')}.</p>`,ans:{type:'fields',fields:[{label:'x =',ans:h}]},steps:[...sx,`The line of symmetry is halfway between them: ${M(`<i>x</i> = (${num(p)} + ${num(q)}) ÷ 2 = ${num(h)}`)}`]};
+  if(sub==='yint')return {...base,prompt:`<p>Find the y-intercept of the graph of ${ex}.</p>`,ans:{type:'fields',fields:[{label:'y-intercept =',ans:yi}]},steps:[`Substitute ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = ${s<0?'−':''}(${num(-p)})(${num(-q)})`)}`,M('<i>y</i> = '+num(yi))]};
+  return {...base,prompt:`<p>Find the coordinates of the turning point of the graph of ${ex}.</p>`,ans:{type:'fields',fields:[{label:'x-coordinate =',ans:h},{label:'y-coordinate =',ans:k}]},
+    steps:[...sx,`The turning point lies on the line of symmetry ${M(`<i>x</i> = (${num(p)} + ${num(q)}) ÷ 2 = ${num(h)}`)}`,`Substitute ${M('<i>x</i> = '+num(h))}: ${M(`<i>y</i> = ${s<0?'−':''}(${num(h-p)})(${num(h-q)}) = ${num(k)}`)}`,`The turning point is ${M(`(${num(h)}, ${num(k)})`)}, a ${s>0?'minimum':'maximum'} point.`]};}
+function gVtx(){const a=pick([1,-1,2,-2,3,-3]);let h,k;do{h=R(-5,5);k=R(-6,6);}while(h===k);const sub=pick(['tp','mm','sym','yint']),ex=Y(vForm(a,h,k)),spec=autoSpec(a,-2*a*h,a*h*h+k);
+  const base={hint:`The form ${M('<i>a</i>(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>')} has turning point ${M('(<i>h</i>, <i>k</i>)')}. Watch the sign inside the bracket.`,solGraph:spec};
+  const s1=`Compare with ${M('<i>a</i>(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>')}: ${M(sq(h))} means ${M('<i>h</i> = '+num(h))}, and ${M('<i>k</i> = '+num(k))}.`;
+  if(sub==='tp')return {...base,prompt:`<p>Write down the coordinates of the turning point of the graph of ${ex}.</p>`,ans:{type:'fields',fields:[{label:'x-coordinate =',ans:h},{label:'y-coordinate =',ans:k}]},steps:[s1,`The turning point is ${M(`(${num(h)}, ${num(k)})`)}.`]};
+  if(sub==='sym')return {...base,prompt:`<p>Find the equation of the line of symmetry of the graph of ${ex}.</p>`,ans:{type:'fields',fields:[{label:'x =',ans:h}]},steps:[s1,`The line of symmetry passes through the turning point: ${M('<i>x</i> = '+num(h))}`]};
+  if(sub==='yint')return {...base,prompt:`<p>Find the y-intercept of the graph of ${ex}.</p>`,ans:{type:'fields',fields:[{label:'y-intercept =',ans:a*h*h+k}]},steps:[`Substitute ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = ${coefPre(a)}(${num(-h)})<sup>2</sup> ${k<0?'−':'+'} ${Math.abs(k)}`)}`,M(`<i>y</i> = ${num(a*h*h)} ${k<0?'−':'+'} ${Math.abs(k)} = ${num(a*h*h+k)}`)]};
+  return {...base,prompt:`<p>Which statement correctly describes the turning point of the graph of ${ex}?</p>`,
+    ans:mcq([[`Minimum point; the minimum value of y is ${num(k)}`,a>0],[`Maximum point; the maximum value of y is ${num(k)}`,a<0],[`Minimum point; the minimum value of y is ${num(h)}`,false],[`Maximum point; the maximum value of y is ${num(h)}`,false]]),
+    steps:[`${M('<i>a</i> = '+num(a))} ${a>0?'&gt; 0, so the graph opens upwards and has a minimum point.':'&lt; 0, so the graph opens downwards and has a maximum point.'}`,s1,`The ${a>0?'minimum':'maximum'} value of y is the y-coordinate of the turning point, ${num(k)} (when ${M('<i>x</i> = '+num(h))}).`]};}
+function gRead(){const s=pick([1,-1]),h=R(-2,2),k=s>0?R(-5,1):R(-1,5),f=x=>s*(x-h)**2+k,yi=s*h*h+k;
+  return {prompt:`<p>The graph below is the graph of a quadratic function. Read from the graph the coordinates of the turning point and the y-intercept.</p>`,
+    graph:{xr:[-6,6],yr:[-10,10],sx:1,sy:2,curves:[{f}],points:[],vlines:[]},
+    ans:{type:'fields',fields:[{label:'turning point x =',ans:h},{label:'turning point y =',ans:k},{label:'y-intercept =',ans:yi}]},
+    hint:'The turning point is where the graph changes direction (its lowest or highest point). The y-intercept is where the graph crosses the line x = 0.',
+    steps:[`The graph opens ${s>0?'upwards, so the turning point is a minimum point':'downwards, so the turning point is a maximum point'}, at ${M(`(${num(h)}, ${num(k)})`)}.`,`The graph cuts the y-axis at ${M(`(0, ${num(yi)})`)}.`,`Check: this graph is ${Y(vForm(s,h,k))}. Substituting x = 0 gives ${M('<i>y</i> = '+num(yi))}.`],
+    solGraph:{xr:[-6,6],yr:[-10,10],sx:1,sy:2,curves:[{f}],vlines:[{x:h,label:'x = '+num(h)}],points:[{x:h,y:k,label:`(${num(h)}, ${num(k)})`},{x:0,y:yi,label:`(0, ${num(yi)})`}]}};}
+
+/* Level 4 — forms of the equation */
+function gCts(){const a=pick([1,1,-1]),b=nz(-5,5)*2,c=R(-8,8),hb=b/2;
+  if(a===1){const h=-hb,k=c-hb*hb;
+    return {prompt:`<p>Express ${Y(P(1,b,c))} in the form ${Y('(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>')} and state the values of ${M('<i>h</i>')} and ${M('<i>k</i>')}.</p>`,
+      ans:{type:'fields',fields:[{label:'h =',ans:h},{label:'k =',ans:k}]},
+      hint:`Add and subtract ${M('(<i>b</i> ÷ 2)<sup>2</sup>')}, where ${M('<i>b</i> ÷ 2 = '+num(hb))}. Then watch the sign of h.`,
+      steps:[M(`${P(1,b,c)} = [<i>x</i><sup>2</sup> ${b<0?'−':'+'} ${Math.abs(b)}<i>x</i> + (${num(hb)})<sup>2</sup>] − (${num(hb)})<sup>2</sup> ${c<0?'−':'+'} ${Math.abs(c)}`),M(`= ${sq(h)} ${k<0?'−':'+'} ${num(Math.abs(k))}`),`Compare with ${M('(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>')}: ${M('<i>h</i> = '+num(h))}, ${M('<i>k</i> = '+num(k))}`,`The minimum point of the graph is ${M(`(${num(h)}, ${num(k)})`)}.`],
+      solGraph:autoSpec(1,b,c)};}
+  const h=hb,k=c+hb*hb;
+  return {prompt:`<p>Express ${Y(P(-1,b,c))} in the form ${Y('−(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>')} and state the values of ${M('<i>h</i>')} and ${M('<i>k</i>')}.</p>`,
+    ans:{type:'fields',fields:[{label:'h =',ans:h},{label:'k =',ans:k}]},
+    hint:'First take −1 out of the x² and x terms, then complete the square inside the bracket.',
+    steps:[M(`${P(-1,b,c)} = −(${P(1,-b,0)}) ${c<0?'−':'+'} ${Math.abs(c)}`),M(`= −[${sq(h)} − (${num(-h)})<sup>2</sup>] ${c<0?'−':'+'} ${Math.abs(c)}`),M(`= −${sq(h)} + ${num(h*h)} ${c<0?'−':'+'} ${Math.abs(c)} = ${vForm(-1,h,k)}`),`So ${M('<i>h</i> = '+num(h))}, ${M('<i>k</i> = '+num(k))}, and the maximum point is ${M(`(${num(h)}, ${num(k)})`)}.`],
+    solGraph:autoSpec(-1,b,c)};}
+function gMatch(){let p,q;do{p=nz(-4,4);q=nz(-4,4);}while(p===q||p===-q);if(p>q)[p,q]=[q,p];
+  const opts=[[1,p,q],[-1,p,q],[1,-q,-p],[-1,-q,-p]],t=R(0,3),[s,r1,r2]=opts[t],f=x=>s*(x-r1)*(x-r2);
+  const eqs=opts.map(([ss,a1,a2])=>[Y(P(ss,-ss*(a1+a2),ss*a1*a2)),false]);eqs[t][1]=true;
+  return {prompt:`<p>Which equation does the graph below represent?</p>`,graph:{xr:[-6,6],yr:rangeFor(f,[-6,6]).map((v,i)=>i?Math.min(v,18):Math.max(v,-18)),sx:1,curves:[{f}],points:[],vlines:[]},
+    ans:mcq(eqs),hint:'Check two things: whether the graph opens up or down (the sign of a), and where it cuts the x-axis. Then try factorising the options.',
+    steps:[`The graph opens ${s>0?'upwards, so a &gt; 0':'downwards, so a &lt; 0'}.`,`It cuts the x-axis at ${M('<i>x</i> = '+num(r1))} and ${M('<i>x</i> = '+num(r2))}, so it has the form ${Y(facForm(s,r1,r2))}.`,`Expand: ${Y(P(s,-s*(r1+r2),s*r1*r2))}`,`Check the y-intercept: ${M('<i>y</i> = '+num(s*r1*r2))}, which matches the graph.`]};}
+function gFromGraph(){const s=pick([1,-1]);
+  if(Math.random()<.55){let p,q;do{p=R(-4,4);q=R(-4,4);}while(p>=q);const b=-s*(p+q),c=s*p*q,f=x=>s*(x-p)*(x-q);
+    return {prompt:`<p>The graph below cuts the x-axis at ${M(`(${num(p)}, 0)`)} and ${M(`(${num(q)}, 0)`)}, and its equation is ${Y(`${coefPre(s)}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>`)}. Find the values of ${M('<i>b</i>')} and ${M('<i>c</i>')}.</p>`,
+      graph:{xr:[-6,6],yr:rangeFor(f,[-6,6]).map((v,i)=>i?Math.min(v,18):Math.max(v,-18)),sx:1,curves:[{f}],vlines:[],points:[{x:p,y:0,label:`(${num(p)}, 0)`},{x:q,y:0,label:`(${num(q)}, 0)`}]},
+      ans:{type:'fields',fields:[{label:'b =',ans:b},{label:'c =',ans:c}]},hint:`Write it in the form ${M(`${coefPre(s)}(<i>x</i> − <i>p</i>)(<i>x</i> − <i>q</i>)`)} first, then expand.`,
+      steps:[`The x-intercepts are ${num(p)} and ${num(q)}, and the coefficient of x² is ${num(s)}.`,`${Y(facForm(s,p,q))}`,`Expand: ${Y(P(s,b,c))}`,`${M('<i>b</i> = '+num(b))}, ${M('<i>c</i> = '+num(c))}`]};}
+  const h=R(-3,3),k=s>0?R(-6,0):R(0,6),b=-2*s*h,c=s*h*h+k,f=x=>s*(x-h)**2+k;
+  return {prompt:`<p>The graph below has its turning point at ${M(`(${num(h)}, ${num(k)})`)}, and its equation is ${Y(`${coefPre(s)}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>`)}. Find the values of ${M('<i>b</i>')} and ${M('<i>c</i>')}.</p>`,
+    graph:{xr:[-7,7],yr:rangeFor(f,[-7,7]).map((v,i)=>i?Math.min(v,15):Math.max(v,-15)),sx:1,curves:[{f}],vlines:[{x:h,label:'x = '+num(h)}],points:[{x:h,y:k,label:`(${num(h)}, ${num(k)})`}]},
+    ans:{type:'fields',fields:[{label:'b =',ans:b},{label:'c =',ans:c}]},hint:`Write it in the form ${M(`${coefPre(s)}(<i>x</i> − <i>h</i>)<sup>2</sup> + <i>k</i>`)} first, then expand.`,
+    steps:[`The turning point is ${M(`(${num(h)}, ${num(k)})`)}, so ${Y(vForm(s,h,k))}.`,`Expand: ${Y(P(s,b,c))}`,`${M('<i>b</i> = '+num(b))}, ${M('<i>c</i> = '+num(c))}`]};}
+
+/* Level 5 — solving graphically */
+function gRoots(){const s=pick([1,-1]);let r1=R(-4,4),r2=Math.random()<.2?r1:R(-4,4);if(r1>r2)[r1,r2]=[r2,r1];if(r2-r1>6)r2=r1+R(1,6);
+  const a=s,b=-s*(r1+r2),c=s*r1*r2,f=x=>s*(x-r1)*(x-r2),yr=rangeFor(f,[-6,6]).map((v,i)=>i?Math.min(Math.max(v,3),12):Math.max(Math.min(v,-3),-12));
+  return {prompt:`<p>Use the graph of ${Y(P(a,b,c))} below to solve the equation ${M(P(a,b,c)+' = 0')}.</p><p class="inhelp">For repeated roots, enter the same value in both boxes.</p>`,
+    graph:{xr:[-6,6],yr,sx:1,curves:[{f}],points:[],vlines:[]},
+    ans:{type:'fields',unordered:true,fields:[{label:'x₁ =',ans:r1},{label:'x₂ =',ans:r2}]},
+    hint:'The solutions of an equation "= 0" are the x-coordinates where the graph cuts or touches the x-axis (the line y = 0).',
+    steps:[`Solving ${M(P(a,b,c)+' = 0')} means finding where ${M('<i>y</i> = 0')}, i.e. where the graph meets the x-axis.`,r1===r2?`The graph touches the x-axis at one point only, ${M('<i>x</i> = '+num(r1))}, so the equation has repeated roots.`:`The graph cuts the x-axis at ${M('<i>x</i> = '+num(r1))} and ${M('<i>x</i> = '+num(r2))}.`,`Check by factorising: ${M(P(a,b,c)+' = '+facForm(s,r1,r2))}`],
+    solGraph:{xr:[-6,6],yr,sx:1,curves:[{f}],vlines:[],points:(r1===r2?[r1]:[r1,r2]).map(r=>({x:r,y:0,label:'x = '+num(r)}))}};}
+function gLineK(){const s=pick([1,-1]);let r1,r2;do{r1=R(-4,4);r2=R(-4,4);}while(r2-r1<2||r2-r1>6);const m=nz(-4,4);
+  const a=s,b=-s*(r1+r2),c=s*r1*r2+m,f=x=>a*x*x+b*x+c,yr=rangeFor(f,[-6,6],[m]).map((v,i)=>i?Math.min(v,16):Math.max(v,-16));
+  return {prompt:`<p>The graph of ${Y(P(a,b,c))} and the line ${Y(num(m))} are shown below. Use the graph to solve the equation ${M(P(a,b,c)+' = '+num(m))}.</p>`,
+    graph:{xr:[-6,6],yr,sx:1,curves:[{f}],hlines:[{y:m,label:'y = '+num(m)}],points:[],vlines:[]},
+    ans:{type:'fields',unordered:true,fields:[{label:'x₁ =',ans:r1},{label:'x₂ =',ans:r2}]},
+    hint:`The solutions are the x-coordinates of the points where the graph meets the line ${M('<i>y</i> = '+num(m))}.`,
+    steps:[`The left side of the equation is the y of the curve; the right side is the line ${M('<i>y</i> = '+num(m))}.`,`They intersect at ${M('<i>x</i> = '+num(r1))} and ${M('<i>x</i> = '+num(r2))}.`,`Check: substituting ${M('<i>x</i> = '+num(r1))} gives ${M(subst(a,b,c,r1)+' = '+num(f(r1)))}`],
+    solGraph:{xr:[-6,6],yr,sx:1,curves:[{f}],hlines:[{y:m,label:'y = '+num(m)}],vlines:[],points:[{x:r1,y:m,label:'x = '+num(r1)},{x:r2,y:m,label:'x = '+num(r2)}]}};}
+function gWhichLine(){const b=R(-4,4),c=R(-4,4),horiz=Math.random()<.6,b2=horiz?b:b+nz(-3,3);const c2=c+nz(-6,6);
+  const m=b-b2,d=c-c2;
+  return {prompt:`<p>A student has already drawn the graph of ${Y(P(1,b,c))}. To use this graph to solve ${M(P(1,b2,c2)+' = 0')}, which straight line ${Y('<i>mx</i> + <i>d</i>')} must be drawn?</p><p class="inhelp">For a horizontal line, enter m = 0.</p>`,
+    ans:{type:'fields',fields:[{label:'m =',ans:m},{label:'d =',ans:d}]},
+    hint:`Rearrange the equation so the left side is ${M(P(1,b,c))}, the graph you already have. The right side is the line to draw.`,
+    steps:[`Start from ${M(P(1,b2,c2)+' = 0')}.`,`Add or subtract terms so the left side becomes ${M(P(1,b,c))}: ${M(`${P(1,b,c)} = ${terms([[m,1],[d,0]])}`)}`,`So draw the line ${Y(terms([[m,1],[d,0]]))}. The solutions are the x-coordinates of the intersection points.`],
+    solGraph:(()=>{const sp=autoSpec(1,b,c,{noSym:true,noTp:true});sp.curves.push({f:x=>m*x+d,color:'l2'});return sp;})()};}
+function gCount(){const a=pick([1,-1,2,-2]),h=R(-4,4),k=R(-5,5),n=k===0?1:(a>0)===(k<0)?2:0;
+  return {prompt:`<p>How many real roots does the equation ${M(vForm(a,h,k)+' = 0')} have?</p>`,ans:mcq([['2 distinct real roots',n===2],['1 root (repeated roots)',n===1],['No real roots',n===0]]),
+    hint:'Picture the graph: does it open up or down, and is the turning point above, on or below the x-axis?',
+    steps:[`The graph of ${Y(vForm(a,h,k))} opens ${a>0?'upwards':'downwards'} with turning point ${M(`(${num(h)}, ${num(k)})`)}.`,k===0?'The turning point lies exactly on the x-axis, so the graph touches the x-axis once → repeated roots.':`The turning point is ${k>0?'above':'below'} the x-axis and the graph opens ${a>0?'upwards':'downwards'} → ${n===2?'it cuts the x-axis twice':'it never meets the x-axis'}.`,`So the equation has ${n===0?'no real roots':n===1?'one (repeated) root':'2 real roots'}.`],
+    solGraph:autoSpec(a,-2*a*h,a*h*h+k)};}
+function gKRange(){const b=nz(-4,4)*2,c=R(-5,6),k0=c-b*b/4,t=pick(['none','one','two']);
+  const ask={none:'has no real roots',one:'has repeated roots',two:'has 2 distinct real roots'}[t];
+  return {prompt:`<p>The graph of ${Y(P(1,b,c))} has a minimum point at ${M(`(${num(-b/2)}, ${num(k0)})`)}. The equation ${M(P(1,b,c)+' = <i>k</i>')} ${ask} when</p>`,
+    ans:mcq([[M(`<i>k</i> &lt; ${num(k0)}`),t==='none'],[M(`<i>k</i> = ${num(k0)}`),t==='one'],[M(`<i>k</i> &gt; ${num(k0)}`),t==='two'],[M(`<i>k</i> ≤ ${num(k0)}`),false]]),
+    hint:'The number of roots equals the number of points where the horizontal line y = k meets the graph.',
+    steps:[`The number of roots of ${M(P(1,b,c)+' = <i>k</i>')} = the number of intersections of the graph with ${M('<i>y</i> = <i>k</i>')}.`,`The minimum value of y is ${num(k0)}.`,`If the line is below the minimum (${M('<i>k</i> &lt; '+num(k0))}) it misses the graph · through the minimum (${M('<i>k</i> = '+num(k0))}) it touches once · above it (${M('<i>k</i> &gt; '+num(k0))}) it cuts twice.`],
+    solGraph:(()=>{const sp=autoSpec(1,b,c);sp.hlines=[{y:k0,label:'y = '+num(k0)}];return sp;})()};}
+
+/* Level 6 — applications */
+function gBall(){let m=R(1,3),n=R(3,6);if(n<=m)n=m+2;const B=5*(n-m),C=5*m*n,tm=(n-m)/2,hm=5*((n+m)/2)**2,f=t=>-5*t*t+B*t+C;
+  return {prompt:`<p>A ball is thrown upwards from the roof of a building. Its height ${M('<i>h</i>')} m above the ground after ${M('<i>t</i>')} seconds is ${M('<i>h</i> = '+P(-5,B,C,'t'))}, for ${M('0 ≤ <i>t</i> ≤ '+n)}.</p><p>Find (1) the height of the building, (2) the time when the ball hits the ground, (3) the maximum height of the ball.</p>`,
+    ans:{type:'fields',fields:[{label:'(1) building height (m)',ans:C},{label:'(2) hits ground at t (s)',ans:n},{label:'(3) maximum height (m)',ans:hm}]},
+    hint:'(1) The ball starts at t = 0. (2) It hits the ground when h = 0; choose t ≥ 0. (3) The highest point is halfway between the two roots.',
+    steps:[`(1) When ${M('<i>t</i> = 0')}: ${M('<i>h</i> = '+C)}, so the building is ${C} m tall.`,`(2) Let ${M('<i>h</i> = 0')}: ${M(`−5(<i>t</i><sup>2</sup> ${B?'− '+(n-m)+'<i>t</i> ':''}− ${m*n}) = 0`)} → ${M(`−5(<i>t</i> + ${m})(<i>t</i> − ${n}) = 0`)} → ${M(`<i>t</i> = −${m}`)} (rejected) or ${M('<i>t</i> = '+n)}`,`(3) Line of symmetry ${M(`<i>t</i> = (−${m} + ${n}) ÷ 2 = ${num(tm)}`)}. Substituting gives ${M(`<i>h</i> = ${num(hm)}`)} m.`],
+    solGraph:{xr:[0,n],yr:[0,Math.ceil(hm*1.1)],curves:[{f}],vlines:[],points:[{x:0,y:C,label:`(0, ${C})`},{x:tm,y:hm,label:`(${num(tm)}, ${num(hm)})`},{x:n,y:0,label:`(${n}, 0)`}],xname:'t',yname:'h'}};}
+function gProfit(){const N=pick([40,60,80,100,120]),item=pick(['chairs','vases','bags']),f=x=>N*x-x*x;
+  return {prompt:`<p>The daily profit ${M('<i>y</i>')} baht from selling ${M('<i>x</i>')} ${item} is ${Y(P(-1,N,0))}, for ${M('0 ≤ <i>x</i> ≤ '+N)}.</p><p>How many ${item} should be sold per day to make the maximum profit, and what is the maximum profit?</p>`,
+    ans:{type:'fields',fields:[{label:`number of ${item}`,ans:N/2},{label:'maximum profit (baht)',ans:N*N/4}]},
+    hint:'Factorise to find the x-intercepts, then use symmetry to locate the maximum point.',
+    steps:[M(`<i>y</i> = ${P(-1,N,0)} = −<i>x</i>(<i>x</i> − ${N})`),`The x-intercepts are 0 and ${N}, and the graph opens downwards.`,`The maximum point is at ${M(`<i>x</i> = (0 + ${N}) ÷ 2 = ${N/2}`)}.`,`${M(`<i>y</i> = ${N}(${N/2}) − (${N/2})<sup>2</sup> = ${N*N/4}`)} baht`],
+    solGraph:{xr:[0,N],yr:[0,Math.ceil(N*N/4*1.15)],curves:[{f}],vlines:[{x:N/2,label:'x = '+N/2}],points:[{x:N/2,y:N*N/4,label:`(${N/2}, ${N*N/4})`}]}};}
+function gSign(){const W=R(2,5),L=W+2*R(1,3),d=L-W,x=d/2,Am=((L+W)/2)**2,f=t=>-t*t+d*t+L*W;
+  return {prompt:`<p>A rectangular shop sign is ${L} m wide and ${W} m tall. The owner reduces the width by ${M('<i>x</i>')} m and increases the height by ${M('<i>x</i>')} m, giving an area of ${M('<i>A</i>')} m².</p><p>Find the value of ${M('<i>x</i>')} that gives the largest area, and the largest area.</p>`,
+    ans:{type:'fields',fields:[{label:'x (m)',ans:x},{label:'largest area (m²)',ans:Am}]},
+    hint:`Write ${M(`<i>A</i> = (${L} − <i>x</i>)(${W} + <i>x</i>)`)}, then find the maximum point of this downward-opening parabola.`,
+    steps:[M(`<i>A</i> = (${L} − <i>x</i>)(${W} + <i>x</i>) = ${P(-1,d,L*W)}`),`It cuts the x-axis at ${M('<i>x</i> = '+L)} and ${M('<i>x</i> = −'+W)}, so the line of symmetry is ${M(`<i>x</i> = (${L} + (−${W})) ÷ 2 = ${num(x)}`)}.`,M(`<i>A</i> = (${L} − ${num(x)})(${W} + ${num(x)}) = ${num((L-x))} × ${num(W+x)} = ${num(Am)}`)+' m² (the sign becomes a square).'],
+    solGraph:{xr:[0,L],yr:[0,Math.ceil(Am*1.15)],curves:[{f}],vlines:[{x,label:'x = '+num(x)}],points:[{x,y:Am,label:`(${num(x)}, ${num(Am)})`}],xname:'x',yname:'A'}};}
+function gGolf(){const D=pick([10,20,30]),H=pick([4,8,12,20]),q=D/2,yq=3*H/4,f=x=>-H/(D*D)*x*(x-2*D);
+  return {prompt:`<p>A golf ball is hit from point O on level ground. Its path is a parabola, reaching a maximum height of ${H} m at a horizontal distance of ${D} m from O.</p><p>(1) How far from O does the ball land? (2) How high is the ball at a horizontal distance of ${q} m?</p>`,
+    ans:{type:'fields',fields:[{label:'(1) lands at (m)',ans:2*D},{label:`(2) height at x = ${q} (m)`,ans:yq}]},
+    hint:'Use symmetry: the highest point is halfway between the start and the landing point. Then write the equation as y = ax(x − p).',
+    steps:[`The highest point is at x = ${D}, the line of symmetry. The ball starts at x = 0, so it lands at ${M(`<i>x</i> = 2 × ${D} = ${2*D}`)} m.`,`Equation ${M(`<i>y</i> = <i>a</i><i>x</i>(<i>x</i> − ${2*D})`)}. Substitute (${D}, ${H}): ${M(`${H} = <i>a</i>(${D})(−${D})`)} → ${M('<i>a</i> = '+frac(-H,D*D))}`,`Substitute ${M('<i>x</i> = '+q)}: ${M(`<i>y</i> = ${frac(-H,D*D)} × ${q} × (${q} − ${2*D}) = ${num(yq)}`)} m`],
+    solGraph:{xr:[0,2*D],yr:[0,Math.ceil(H*1.25)],curves:[{f}],vlines:[{x:D,label:'x = '+D}],points:[{x:D,y:H,label:`(${D}, ${H})`},{x:q,y:yq,label:`(${q}, ${num(yq)})`},{x:2*D,y:0,label:`(${2*D}, 0)`}]}};}
+function gCost(){const m=R(8,15),extra=R(4,16)*5,c0=m*m+extra,f=x=>x*x-2*m*x+c0;
+  return {prompt:`<p>A furniture maker finds that when ${M('<i>x</i>')} tables are made per day (${M('0 ≤ <i>x</i> ≤ '+2*m)}), the cost per table ${M('<i>y</i>')} baht is ${Y(P(1,-2*m,c0))}.</p><p>How many tables should be made per day to minimise the cost per table, and what is the minimum cost?</p>`,
+    ans:{type:'fields',fields:[{label:'number of tables',ans:m},{label:'minimum cost (baht)',ans:extra}]},
+    hint:'Complete the square to get the form (x − h)² + k, then read off the minimum point.',
+    steps:[M(`<i>y</i> = ${P(1,-2*m,c0)} = (<i>x</i> − ${m})<sup>2</sup> − ${m*m} + ${c0} = ${vForm(1,m,extra)}`),`The minimum point is ${M(`(${m}, ${extra})`)}.`,`Make ${m} tables per day; the minimum cost is ${extra} baht per table.`,`The y-intercept ${c0} means the formula gives a cost of ${c0} baht per table when nothing is made, which is hard to interpret in real life.`],
+    solGraph:{xr:[0,2*m],yr:[0,Math.ceil(c0*1.1)],curves:[{f}],vlines:[{x:m,label:'x = '+m}],points:[{x:m,y:extra,label:`(${m}, ${extra})`}]}};}
+
+const LEVELS=[
+  {name:'Quadratic basics',desc:'Direction of opening, y-intercept, width of the graph',gens:[gDir,gYint,gIsQuad,gWider]},
+  {name:'Tables of values',desc:'Substitution and points on the graph',gens:[gEval,gTable,gPoints]},
+  {name:'Key features of the graph',desc:'Turning point, line of symmetry, intercepts',gens:[gFac,gVtx,gRead,gFac,gVtx]},
+  {name:'Forms & matching graphs',desc:'Completing the square; finding the equation from a graph',gens:[gCts,gMatch,gFromGraph]},
+  {name:'Solving graphically',desc:'Graphical method · number of roots · the line y = k',gens:[gRoots,gLineK,gWhichLine,gCount,gKRange]},
+  {name:'Applications',desc:'Ball, profit, sign area, golf ball, cost',gens:[gBall,gProfit,gSign,gGolf,gCost]},
+  {name:'Mixed test',desc:'Random questions from every level',gens:[],mixed:true}
+];
+/* ===================== end generators ===================== */
+
+/* ===================== graph renderer ===================== */
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function niceStep(range,target){const raw=range/target,p=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/p;return (n<1.5?1:n<3?2:n<7?5:10)*p;}
+function minorOf(step){const m=Math.round(step/Math.pow(10,Math.floor(Math.log10(step)))+1e-9);return step/(m===2?4:5);}
+const graphs=new Map();
+const ro=new ResizeObserver(es=>es.forEach(e=>{const s=graphs.get(e.target);if(s)render(e.target,s);}));
+function plot(cv,spec){graphs.set(cv,spec);ro.observe(cv);render(cv,spec);}
+function redrawAll(){graphs.forEach((s,cv)=>{if(cv.isConnected)render(cv,s);else{graphs.delete(cv);ro.unobserve(cv);}});}
+function render(cv,spec){
+  const w=cv.clientWidth,h=cv.clientHeight;if(!w||!h)return;
+  const dpr=Math.min(window.devicePixelRatio||1,2);cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr);
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);
+  const C={bg:cssv('--surface'),mi:cssv('--grid-minor'),ma:cssv('--grid-major'),ax:cssv('--axis'),ink:cssv('--ink'),mu:cssv('--muted'),cu:cssv('--curve'),l2:cssv('--line2'),ac:cssv('--accent')};
+  const [x0,x1]=spec.xr,[y0,y1]=spec.yr,pad=8;
+  const X=x=>pad+(x-x0)/(x1-x0)*(w-2*pad),Yp=y=>h-pad-(y-y0)/(y1-y0)*(h-2*pad);
+  ctx.fillStyle=C.bg;ctx.fillRect(0,0,w,h);
+  const sx=spec.sx||niceStep(x1-x0,w<420?6:10),sy=spec.sy||niceStep(y1-y0,h<300?6:8);
+  const grid=(stx,sty,col,lw)=>{ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.beginPath();
+    for(let i=Math.ceil(x0/stx-1e-9);i*stx<=x1+1e-9;i++){const p=Math.round(X(i*stx))+.5;ctx.moveTo(p,0);ctx.lineTo(p,h);}
+    for(let i=Math.ceil(y0/sty-1e-9);i*sty<=y1+1e-9;i++){const p=Math.round(Yp(i*sty))+.5;ctx.moveTo(0,p);ctx.lineTo(w,p);}ctx.stroke();};
+  const mx=minorOf(sx),my=minorOf(sy);
+  if(X(mx)-X(0)>=5&&Yp(0)-Yp(my)>=5)grid(mx,my,C.mi,1);
+  grid(sx,sy,C.ma,1);
+  const axY=(y0<=0&&y1>=0)?Yp(0):null,axX=(x0<=0&&x1>=0)?X(0):null;
+  ctx.strokeStyle=C.ax;ctx.lineWidth=1.6;ctx.beginPath();
+  if(axY!==null){ctx.moveTo(0,axY);ctx.lineTo(w,axY);}if(axX!==null){ctx.moveTo(axX,0);ctx.lineTo(axX,h);}ctx.stroke();
+  const font=(sz,wt)=>`${wt||500} ${sz}px Anuphan, system-ui, sans-serif`;
+  const txt=(s,x,y,al,col,sz,wt)=>{ctx.font=font(sz||11,wt);ctx.textAlign=al;ctx.textBaseline='middle';ctx.lineJoin='round';ctx.lineWidth=4;ctx.strokeStyle=C.bg;ctx.strokeText(s,x,y);ctx.fillStyle=col;ctx.fillText(s,x,y);};
+  const pxs=X(sx)-X(0),pys=Yp(0)-Yp(sy),skx=pxs<24?2:1,sky=pys<18?2:1;
+  const lyx=axY!==null?Math.min(axY+11,h-7):h-7;
+  for(let i=Math.ceil(x0/sx-1e-9);i*sx<=x1+1e-9;i++){if(i===0||i%skx)continue;const xx=X(i*sx);if(xx<10||xx>w-10)continue;txt(num(i*sx),xx,lyx,'center',C.mu);}
+  const lxy=axX!==null?(axX<30?axX+5:axX-5):6,al=axX!==null&&axX>=30?'right':'left';
+  for(let i=Math.ceil(y0/sy-1e-9);i*sy<=y1+1e-9;i++){if(i===0||i%sky)continue;const yy=Yp(i*sy);if(yy<9||yy>h-9)continue;txt(num(i*sy),lxy,yy,al,C.mu);}
+  if(axX!==null&&axY!==null)txt('O',axX-7,axY+10,'center',C.mu);
+  if(axY!==null)txt(spec.xname||'x',w-8,axY-10,'right',C.ink,13,600);
+  if(axX!==null)txt(spec.yname||'y',axX+10,12,'left',C.ink,13,600);
+  ctx.save();ctx.beginPath();ctx.rect(0,0,w,h);ctx.clip();
+  (spec.vlines||[]).forEach(v=>{if(v.x<x0||v.x>x1)return;const p=X(v.x);ctx.setLineDash([6,5]);ctx.strokeStyle=C.ac;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,h);ctx.stroke();ctx.setLineDash([]);if(v.label)txt(v.label,p+(p>w-70?-6:6),14,p>w-70?'right':'left',C.ac,12,600);});
+  (spec.hlines||[]).forEach(v=>{if(v.y<y0||v.y>y1)return;const p=Yp(v.y);ctx.strokeStyle=C.l2;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,p);ctx.lineTo(w,p);ctx.stroke();if(v.label)txt(v.label,w-8,p+(p<24?12:-11),'right',C.l2,12,600);});
+  (spec.curves||[]).forEach(cu=>{ctx.strokeStyle=cu.color==='l2'?C.l2:cu.color==='mu'?C.mu:C.cu;ctx.lineWidth=cu.color==='mu'?1.4:2.6;ctx.setLineDash(cu.dash?[5,5]:[]);ctx.beginPath();
+    const N=Math.max(200,Math.round(w));let pen=false;const lim=(y1-y0)*3;
+    for(let i=0;i<=N;i++){const x=x0+(x1-x0)*i/N;if(cu.dom&&(x<cu.dom[0]-1e-9||x>cu.dom[1]+1e-9)){pen=false;continue;}const y=cu.f(x);if(!isFinite(y)||y>y1+lim||y<y0-lim){pen=false;continue;}const px=X(x),py=Yp(y);if(pen)ctx.lineTo(px,py);else{ctx.moveTo(px,py);pen=true;}}
+    ctx.stroke();ctx.setLineDash([]);});
+  (spec.points||[]).forEach(pt=>{if(pt.x<x0||pt.x>x1||pt.y<y0||pt.y>y1)return;const px=X(pt.x),py=Yp(pt.y),col=pt.color==='l2'?C.l2:C.cu;
+    ctx.beginPath();ctx.arc(px,py,4.5,0,Math.PI*2);ctx.fillStyle=C.bg;ctx.fill();ctx.strokeStyle=col;ctx.lineWidth=2.2;ctx.stroke();
+    if(pt.label){const right=px>w-90,dy=py<22?14:-12;txt(pt.label,px+(right?-8:8),py+dy,right?'right':'left',C.ink,12,600);}});
+  ctx.restore();
+}
+
+/* ===================== tabs ===================== */
+const TABS=['explore','practice','notes'];
+function showTab(id){TABS.forEach(t=>{const on=t===id;document.getElementById('tab-'+t).setAttribute('aria-selected',on);document.getElementById('p-'+t).hidden=!on;});
+  if(id==='practice'&&hi<0)newQ();}
+TABS.forEach(t=>document.getElementById('tab-'+t).addEventListener('click',()=>showTab(t)));
+
+/* ===================== explorer ===================== */
+const EX={mode:'std',custom:{a:1,b:-4,c:3,changed:false},std:{a:1,b:-2,c:-3},vtx:{a:1,h:1,k:-4},fac:{a:1,p:-1,q:3},ghost:true,table:false,showK:false,kv:2};
+const PARAMS={std:[['a',-3,3,0.25],['b',-8,8,1],['c',-8,8,1]],vtx:[['a',-3,3,0.25],['h',-6,6,0.5],['k',-8,8,0.5]],fac:[['a',-3,3,0.25],['p',-7,7,1],['q',-7,7,1]]};
+function exABC(){const m=EX.mode,s=EX[m];if(m==='custom')return [s.a,s.b,s.c];if(m==='std')return [s.a,s.b,s.c];if(m==='vtx')return [s.a,-2*s.a*s.h,s.a*s.h*s.h+s.k];return [s.a,-s.a*(s.p+s.q),s.a*s.p*s.q];}
+const clampR=(v,lo,hi,st)=>Math.min(hi,Math.max(lo,Math.round(v/st)*st));
+function exSetMode(m){const [a,b,c]=exABC();
+  if(a!==0){const h=-b/(2*a),k=a*h*h+b*h+c,D=b*b-4*a*c;
+    if(m==='std')EX.std={a,b:clampR(b,-8,8,1),c:clampR(c,-8,8,1)};
+    if(m==='vtx')EX.vtx={a,h:clampR(h,-6,6,.5),k:clampR(k,-8,8,.5)};
+    if(m==='fac'&&D>=0){const r1=(-b-Math.sqrt(D))/(2*a),r2=(-b+Math.sqrt(D))/(2*a);EX.fac={a,p:clampR(Math.min(r1,r2),-7,7,1),q:clampR(Math.max(r1,r2),-7,7,1)};}}
+  if(m==='custom'&&a!==0&&EX.mode!=='custom'){EX.custom={a,b,c,changed:false};document.getElementById('fnIn').value=plainPoly(a,b,c);document.getElementById('fnErr').hidden=true;document.getElementById('fnIn').classList.remove('bad');}
+  EX.mode=m;document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===m));buildSliders();exUpdate();}
+function buildSliders(){const box=document.getElementById('exSliders'),cu=EX.mode==='custom';document.getElementById('customBox').hidden=!cu;if(cu){box.innerHTML='';return;}box.innerHTML=PARAMS[EX.mode].map(([k,lo,hi,st])=>`<div class="slider"><label for="sl-${k}">${k}</label><input type="range" id="sl-${k}" min="${lo}" max="${hi}" step="${st}" value="${EX[EX.mode][k]}"><output id="out-${k}">${num(EX[EX.mode][k])}</output></div>`).join('');
+  PARAMS[EX.mode].forEach(([k])=>document.getElementById('sl-'+k).addEventListener('input',e=>{EX[EX.mode][k]=Number(e.target.value);document.getElementById('out-'+k).textContent=num(EX[EX.mode][k]);exUpdate();}));}
+function exUpdate(){const [a,b,c]=exABC(),s=EX[EX.mode],f=x=>a*x*x+b*x+c;
+  const fm=EX.mode==='custom'||EX.mode==='std'?P(a,b,c):EX.mode==='vtx'?(a===0?num(s.k):vForm(a,s.h,s.k)):(a===0?'0':facForm(a,s.p,s.q));
+  document.getElementById('exFormula').innerHTML=Y(fm);
+  const note=document.getElementById('exNote'),forms=document.getElementById('exForms'),facts=document.getElementById('exFacts');
+  const cu=EX.mode==='custom'&&a!==0,spec=cu?customSpec(a,b,c):{xr:[-8,8],yr:[-10,10],sx:2,sy:2,curves:[],points:[],vlines:[],hlines:[]};
+  const exBox=document.getElementById('explain');exBox.hidden=!cu;if(cu)document.getElementById('explainList').innerHTML=explainSteps(a,b,c,s.changed).map(t=>`<li>${t}</li>`).join('');
+  if(EX.ghost)spec.curves.push({f:x=>x*x,color:'mu',dash:true});
+  spec.curves.push({f});
+  if(a===0){note.innerHTML=`<div class="note">When a = 0 the equation is no longer quadratic, and the graph becomes a straight line (a linear function). Move a away from 0.</div>`;forms.innerHTML='';facts.innerHTML='';}
+  else{note.innerHTML='';const h=-b/(2*a),k=f(h),D=b*b-4*a*c;let roots=[];
+    if(D>1e-12)roots=[(-b-Math.sqrt(D))/(2*a),(-b+Math.sqrt(D))/(2*a)].sort((u,v)=>u-v);else if(Math.abs(D)<=1e-12)roots=[h];
+    const rr=v=>Math.round(v*100)/100,exact=roots.every(r=>Math.abs(rr(r)-r)<1e-9);
+    const facStr=roots.length===2?(exact?'':'≈ ')+facForm(a,rr(roots[0]),rr(roots[1])):roots.length===1?facForm(a,rr(h),rr(h)):'cannot be factorised over the real numbers';
+    forms.innerHTML=`<div><span>General form</span>${Y(P(a,b,c))}</div><div><span>Completed-square form</span>${Y(vForm(a,rr(h),rr(k)))}</div><div><span>Factorised form</span>${roots.length?Y(facStr):`<span>${facStr}</span>`}</div>`;
+    const nR=roots.length;
+    facts.innerHTML=`<dt>Opens</dt><dd>${a>0?'upwards (a &gt; 0)':'downwards (a &lt; 0)'}</dd>
+      <dt>Turning point</dt><dd>${M(`(${approx(h)}, ${approx(k)})`)} ${a>0?'minimum':'maximum'} point</dd>
+      <dt>${a>0?'Minimum':'Maximum'} value of y</dt><dd>${approx(k)}</dd>
+      <dt>Line of symmetry</dt><dd>${M('<i>x</i> = '+approx(h))}</dd>
+      <dt>y-intercept</dt><dd>${M(`(0, ${num(c)})`)}</dd>
+      <dt>x-intercepts</dt><dd>${nR?roots.map(r=>M('<i>x</i> = '+approx(r))).join(', '):'does not cut the x-axis'}</dd>
+      <dt>Equation = 0</dt><dd>${nR===2?'2 distinct real roots':nR===1?'repeated roots':'no real roots'} · ${M('<i>b</i><sup>2</sup> − 4<i>ac</i> = '+approx(D))}</dd>`;
+    spec.vlines.push({x:h,label:'x = '+approx(h).replace('≈ ','')});
+    spec.points.push({x:h,y:k,label:`(${approx(h).replace('≈ ','')}, ${approx(k).replace('≈ ','')})`});
+    spec.points.push({x:0,y:c,label:(Math.abs(h)<1.2?'':`(0, ${num(c)})`)});
+    roots.forEach(r=>{if(Math.abs(r-h)>0.01||nR===1)spec.points.push({x:r,y:0});});
+    if(cu&&Math.abs(h)>1e-9)spec.points.push({x:2*h,y:c});
+    if(EX.showK){const D2=b*b-4*a*(c-EX.kv);let xs=[];if(D2>1e-12)xs=[(-b-Math.sqrt(D2))/(2*a),(-b+Math.sqrt(D2))/(2*a)];else if(Math.abs(D2)<=1e-12)xs=[h];
+      spec.hlines.push({y:EX.kv,label:'y = '+num(EX.kv)});xs.forEach(x=>spec.points.push({x,y:EX.kv,color:'l2',label:'x '+approx(x).replace(/^(?!≈)/,'= ')}));
+      facts.innerHTML+=`<dt>Line y = ${num(EX.kv)}</dt><dd>meets the graph at ${xs.length} point${xs.length===1?'':'s'} → ${M(P(a,b,c)+' = '+num(EX.kv))} ${xs.length?'solutions '+xs.map(x=>M('<i>x</i> '+approx(x).replace(/^(?!≈)/,'= '))).join(', '):'no real solutions'}</dd>`;}
+  }
+  if(a===0)spec.points=[];
+  plot(document.getElementById('exGraph'),spec);
+  document.getElementById('lgGhost').hidden=!EX.ghost;document.getElementById('lgK').hidden=!EX.showK;
+  const tb=document.getElementById('exTable');tb.hidden=!EX.table;
+  if(EX.table){const xs=[-4,-3,-2,-1,0,1,2,3,4];tb.innerHTML=`<table class="tv"><tr><th>x</th>${xs.map(x=>`<td>${num(x)}</td>`).join('')}</tr><tr><th>y</th>${xs.map(x=>`<td>${num(f(x))}</td>`).join('')}</tr></table>`;}
+}
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>exSetMode(b.dataset.mode)));
+document.getElementById('tgGhost').addEventListener('change',e=>{EX.ghost=e.target.checked;exUpdate();});
+document.getElementById('tgTable').addEventListener('change',e=>{EX.table=e.target.checked;exUpdate();});
+document.getElementById('tgK').addEventListener('change',e=>{EX.showK=e.target.checked;document.getElementById('kRow').hidden=!EX.showK;exUpdate();});
+document.getElementById('slK').addEventListener('input',e=>{EX.kv=Number(e.target.value);document.getElementById('outK').textContent=num(EX.kv);exUpdate();});
+
+/* ===================== practice ===================== */
+const KEY='parabola-lab-en-v1';let prog={};
+try{prog=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){prog={};}
+const saveProg=()=>{try{localStorage.setItem(KEY,JSON.stringify(prog));}catch(e){}};
+if(!prog.v2){if(prog[6]){prog[8]=prog[6];delete prog[6];}prog.v2=1;saveProg();}
+function rec(li,ok){const p=prog[li]||(prog[li]={n:0,c:0,r:[]});p.n++;if(ok)p.c++;p.r.push(ok?1:0);if(p.r.length>10)p.r.shift();saveProg();}
+const LANG='en';
+
+/* ===================== textbook-style multi-part questions ===================== */
+const T=(th,en)=>LANG==='th'?th:en;
+const cl=v=>Math.round(v*1e6)/1e6;
+const d2=x=>num(Math.round(x*100)/100);
+const tolX=s=>Math.max(0.15,(s.xr[1]-s.xr[0])*0.012);
+const tolY=s=>Math.max(0.15,(s.yr[1]-s.yr[0])*0.015);
+const inDom=(x,a,b)=>x>=a-1e-9&&x<=b+1e-9;
+function qRoots(A,B,C){const D=B*B-4*A*C;if(D<-1e-12)return [];if(Math.abs(D)<=1e-12)return [-B/(2*A)];const s=Math.sqrt(D);return [(-B-s)/(2*A),(-B+s)/(2*A)].sort((u,v)=>u-v);}
+function bookG(f,x0,x1,o={}){const ys=[0];for(let i=0;i<=60;i++)ys.push(f(x0+(x1-x0)*i/60));(o.extraY||[]).forEach(y=>ys.push(y));
+  const lo=Math.min(...ys),hi=Math.max(...ys),pd=Math.max(0.5,(hi-lo)*0.08),px=o.padX??Math.max(0.3,(x1-x0)*0.04);
+  return {xr:[x0-px,x1+px],yr:[lo-pd,hi+pd],sx:o.sx,sy:o.sy,curves:[{f,dom:[x0,x1]}].concat(o.curves||[]),points:o.points||[],vlines:o.vlines||[],hlines:o.hlines||[],xname:o.xname,yname:o.yname};}
+const G=(b,add)=>({...b,curves:b.curves.concat(add.curves||[]),points:(b.points||[]).concat(add.points||[]),vlines:(b.vlines||[]).concat(add.vlines||[]),hlines:(b.hlines||[]).concat(add.hlines||[])});
+function tblHTML(xs,cells,xn='x',yn='y'){return `<div class="tv-wrap"><table class="tv"><tr><th>${xn}</th>${xs.map(x=>`<td>${num(x)}</td>`).join('')}</tr><tr><th>${yn}</th>${cells.map(c=>`<td>${c}</td>`).join('')}</tr></table></div>`;}
+const eqZ=(a,b,c,v)=>M(P(a,b,c,v)+' = 0');
+const coordTxt=(x,y)=>`(${d2(x)}, ${d2(y)})`;
+
+/* ---------- part builders ---------- */
+function partTable(eqHTML,f,xs,blanks,spec,sb,xn='x',yn='y'){const ys=xs.map(x=>cl(f(x))),ex=blanks.slice(0,2);
+  return {prompt:T(`เติมตารางค่าของ ${eqHTML} ให้สมบูรณ์`,`Copy and complete the table of values for ${eqHTML}.`),
+    ans:{type:'table',xs,ys,blanks,xname:xn,yname:yn},
+    hint:T(`แทนค่า ${xn} แต่ละค่าลงในสมการ ระวังกำลังสองของจำนวนลบซึ่งได้ค่าบวกเสมอ`,`Substitute each value of ${xn} into the equation. Remember that the square of a negative number is positive.`),
+    steps:[...ex.map(i=>`${T('แทน','Substitute')} ${M(`<i>${xn}</i> = ${num(xs[i])}`)}: ${M(`<i>${yn}</i> = ${sb(xs[i])} = ${num(ys[i])}`)}`),
+      T('ทำแบบเดียวกันกับค่าอื่น แล้วตรวจด้วยความสมมาตร ค่า y ที่อยู่ห่างแกนสมมาตรเท่ากันต้องเท่ากัน','Do the same for the other values, then check with symmetry: y-values the same distance from the line of symmetry must be equal.'),
+      tblHTML(xs,ys.map(num),xn,yn)],
+    solGraph:spec};}
+function partLetters(letters,idx,xs,ys,sb,spec,xn='x'){
+  return {prompt:T(`จงหาค่าของ ${letters.map(l=>M('<i>'+l+'</i>')).join(', ')}`,`Find the value${letters.length>1?'s':''} of ${letters.map(l=>M('<i>'+l+'</i>')).join(', ')}.`),
+    ans:{type:'fields',fields:idx.map((i,j)=>({label:letters[j]+' =',ans:ys[i]}))},
+    hint:T(`แทนค่า ${xn} ในคอลัมน์ของตัวอักษรนั้นลงในสมการ`,`Substitute the value of ${xn} in that column into the equation.`),
+    steps:idx.map((i,j)=>`${M('<i>'+letters[j]+'</i>')}: ${T('แทน','substitute')} ${M(`<i>${xn}</i> = ${num(xs[i])}`)} → ${M(sb(xs[i])+' = '+num(ys[i]))}`),
+    solGraph:spec};}
+function partTP(a,h,k,spec,o={}){const mn=a>0,xn=o.xn||'x',yn=o.yn||'y';
+  return {prompt:o.prompt||T(`ใช้กราฟหาค่า${mn?'ต่ำ':'สูง'}สุดของ ${yn} และค่า ${xn} ที่ทำให้เกิดค่านั้น`,`Use the graph to find the ${mn?'minimum':'maximum'} value of ${yn} and the value of ${xn} at which it occurs.`),
+    ans:{type:'fields',fields:[{label:o.l1||T(`ค่า${mn?'ต่ำ':'สูง'}สุดของ ${yn} =`,`${mn?'minimum':'maximum'} ${yn} =`),ans:k,tol:tolY(spec)},{label:o.l2||`${xn} =`,ans:h,tol:tolX(spec)}]},
+    hint:T(`หาจุด${mn?'ต่ำ':'สูง'}ที่สุดของกราฟ ซึ่งอยู่บนแกนสมมาตร`,`Find the ${mn?'lowest':'highest'} point of the graph. It lies on the line of symmetry.`),
+    steps:[T(`จากกราฟ จุด${mn?'ต่ำ':'สูง'}สุดอยู่ที่ ${M(coordTxt(h,k))}`,`From the graph, the ${mn?'minimum':'maximum'} point is ${M(coordTxt(h,k))}.`),
+      T(`ดังนั้นค่า${mn?'ต่ำ':'สูง'}สุดของ ${yn} คือ ${d2(k)} เมื่อ ${xn} = ${d2(h)}`,`So the ${mn?'minimum':'maximum'} value of ${yn} is ${d2(k)}, when ${xn} = ${d2(h)}.`),
+      ...(o.extra||[])],
+    solGraph:G(spec,{points:[{x:h,y:k,label:coordTxt(h,k)}]})};}
+function partTPc(a,h,k,spec){const mn=a>0;
+  return {prompt:T(`ใช้กราฟหาพิกัดของจุด${mn?'ต่ำ':'สูง'}สุดของกราฟ`,`Use the graph to find the coordinates of the ${mn?'minimum':'maximum'} point of the graph.`),
+    ans:{type:'fields',fields:[{label:T('พิกัด x =','x ='),ans:h,tol:tolX(spec)},{label:T('พิกัด y =','y ='),ans:k,tol:tolY(spec)}]},
+    hint:T('จุดวกกลับอยู่บนแกนสมมาตร กึ่งกลางระหว่างจุดสองจุดที่มีค่า y เท่ากัน','The turning point is on the line of symmetry, halfway between two points with equal y-values.'),
+    steps:[T(`จุด${mn?'ต่ำ':'สูง'}สุดอยู่ที่ ${M(coordTxt(h,k))}`,`The ${mn?'minimum':'maximum'} point is ${M(coordTxt(h,k))}.`),T(`ตรวจ: ${M('<i>x</i> = −<i>b</i> ÷ 2<i>a</i> = '+d2(h))} แล้วแทนค่าได้ ${M('<i>y</i> = '+d2(k))}`,`Check: ${M('<i>x</i> = −<i>b</i> ÷ 2<i>a</i> = '+d2(h))}; substituting gives ${M('<i>y</i> = '+d2(k))}.`)],
+    solGraph:G(spec,{points:[{x:h,y:k,label:coordTxt(h,k)}]})};}
+function partRoots(roots,spec,o={}){const ex=roots.every(r=>Math.abs(r-Math.round(r*2)/2)<1e-9);
+  return {prompt:o.prompt||T('ใช้กราฟหาพิกัดของจุดที่กราฟตัดแกน x','Use the graph to find the coordinates of the points where the graph cuts the x-axis.'),
+    ans:{type:'fields',unordered:true,fields:roots.map((r,i)=>({label:(o.labels?o.labels[i]:`x${i?'₂':'₁'} =`),ans:r,tol:tolX(spec)}))},
+    hint:o.hint||T('อ่านพิกัด x ของจุดที่กราฟตัดแกน x (เส้น y = 0)','Read the x-coordinates where the graph crosses the x-axis (the line y = 0).'),
+    steps:[...(o.pre||[]),T(`กราฟตัดแกน x ที่ ${roots.map(r=>M(`(${d2(r)}, 0)`)).join(T(' และ ',' and '))}`,`The graph cuts the x-axis at ${roots.map(r=>M(`(${d2(r)}, 0)`)).join(' and ')}.`),
+      ex?'':T('ค่าที่อ่านจากกราฟเป็นค่าประมาณ ถ้าคำนวณด้วยสูตรจะได้ค่าที่แสดงไว้','Values read from a graph are estimates; the values shown are from the quadratic formula.')].filter(Boolean),
+    solGraph:G(spec,{points:roots.map(r=>({x:r,y:0,label:d2(r)}))})};}
+function partSym(h,spec){return {prompt:T('จงเขียนสมการของแกนสมมาตรของกราฟ','State the equation of the line of symmetry of the graph.'),
+    ans:{type:'fields',fields:[{label:'x =',ans:h,tol:0.05}]},
+    hint:T('แกนสมมาตรเป็นเส้นแนวตั้งที่ผ่านจุดวกกลับ','The line of symmetry is the vertical line through the turning point.'),
+    steps:[T(`แกนสมมาตรผ่านจุดวกกลับ จึงมีสมการ ${M('<i>x</i> = '+d2(h))}`,`The line of symmetry passes through the turning point, so its equation is ${M('<i>x</i> = '+d2(h))}.`)],
+    solGraph:G(spec,{vlines:[{x:h,label:'x = '+d2(h)}]})};}
+function partYint(c,spec,o={}){return {prompt:o.prompt||T('ใช้กราฟหาระยะตัดแกน y','Use the graph to find the value of the y-intercept.'),
+    ans:{type:'fields',fields:[{label:o.label||T('ระยะตัดแกน y =','y-intercept ='),ans:c}]},
+    hint:T('ดูจุดที่กราฟตัดแกน y ซึ่งคือค่าเมื่อ x = 0','Look where the graph crosses the y-axis, i.e. the value when x = 0.'),
+    steps:[T(`เมื่อ ${M('<i>x</i> = 0')} จะได้ ${M('<i>y</i> = '+num(c))} กราฟตัดแกน y ที่ ${M(`(0, ${num(c)})`)}`,`When ${M('<i>x</i> = 0')}, ${M('<i>y</i> = '+num(c))}. The graph cuts the y-axis at ${M(`(0, ${num(c)})`)}.`)],
+    solGraph:G(spec,{points:[{x:0,y:c,label:`(0, ${num(c)})`}]})};}
+function partXwhen(a,b,c,K,spec){const s=qRoots(a,b,c-K);
+  return {prompt:T(`ใช้กราฟหาค่าของ x เมื่อ ${M('<i>y</i> = '+num(K))}`,`Use the graph to find the values of x when ${M('<i>y</i> = '+num(K))}.`),
+    ans:{type:'fields',unordered:true,fields:s.map((r,i)=>({label:`x${i?'₂':'₁'} =`,ans:r,tol:tolX(spec)}))},
+    hint:T(`ลากเส้นตรง ${M('<i>y</i> = '+num(K))} แล้วอ่านพิกัด x ของจุดตัดกับกราฟ`,`Draw the line ${M('<i>y</i> = '+num(K))} and read the x-coordinates where it meets the curve.`),
+    steps:[T(`ลากเส้น ${M('<i>y</i> = '+num(K))} ตัดกราฟ 2 จุด`,`The line ${M('<i>y</i> = '+num(K))} meets the curve at 2 points.`),T(`อ่านได้ ${s.map(r=>M('<i>x</i> = '+approx(r).replace('≈ ','≈'))).join(T(' และ ',' and '))}`,`Reading off: ${s.map(r=>M('<i>x</i> = '+approx(r).replace('≈ ','≈'))).join(' and ')}.`)],
+    solGraph:G(spec,{hlines:[{y:K,label:'y = '+num(K)}],points:s.map(r=>({x:r,y:K,color:'l2'}))})};}
+function partLineK(a,b,c,K,eqHTML){
+  return {prompt:T(`ถ้าต้องการใช้กราฟนี้แก้สมการ ${eqHTML} ต้องลากเส้นตรง ${M('<i>y</i> = <i>k</i>')} โดย k เท่ากับเท่าใด`,`To solve ${eqHTML} using this graph, which line ${M('<i>y</i> = <i>k</i>')} should be drawn? Find k.`),
+    ans:{type:'fields',fields:[{label:'k =',ans:K}]},
+    hint:T(`จัดสมการให้ด้านซ้ายเป็น ${M(P(a,b,c))} เหมือนสมการของกราฟ`,`Rearrange so the left side is ${M(P(a,b,c))}, the same as the graph's equation.`),
+    steps:[T(`เริ่มจาก ${eqHTML}`,`Start from ${eqHTML}.`),T(`บวก/ลบทั้งสองข้างให้ด้านซ้ายเป็น ${M(P(a,b,c))}: ${M(P(a,b,c)+' = '+num(K))}`,`Add or subtract on both sides so the left side is ${M(P(a,b,c))}: ${M(P(a,b,c)+' = '+num(K))}`),T(`จึงลากเส้น ${M('<i>y</i> = '+num(K))}`,`So draw the line ${M('<i>y</i> = '+num(K))}.`)]};}
+function partLineMD(a,b,c,m,d,eqHTML){
+  return {prompt:T(`ถ้าต้องการใช้กราฟนี้แก้สมการ ${eqHTML} ต้องลากเส้นตรง ${Y('<i>mx</i> + <i>d</i>')} เส้นใด`,`To solve ${eqHTML} using this graph, which straight line ${Y('<i>mx</i> + <i>d</i>')} should be drawn?`),
+    ans:{type:'fields',fields:[{label:'m =',ans:m},{label:'d =',ans:d}]},
+    hint:T(`จัดสมการให้ด้านซ้ายเป็น ${M(P(a,b,c))} ด้านขวาที่เหลือคือเส้นตรงที่ต้องลาก`,`Rearrange so the left side is ${M(P(a,b,c))}; what is left on the right is the line to draw.`),
+    steps:[T(`เริ่มจาก ${eqHTML}`,`Start from ${eqHTML}.`),T(`จัดรูป: ${M(P(a,b,c)+' = '+terms([[m,1],[d,0]]))}`,`Rearrange: ${M(P(a,b,c)+' = '+terms([[m,1],[d,0]]))}`),T(`จึงลากเส้น ${Y(terms([[m,1],[d,0]]))} บนแกนเดียวกัน`,`So draw the line ${Y(terms([[m,1],[d,0]]))} on the same axes.`)]};}
+function partSols(sols,spec,add,eqHTML,lineTxt){
+  return {prompt:T(`ใช้กราฟและเส้นตรง ${lineTxt} หาคำตอบของสมการ ${eqHTML}`,`Use the graph and the line ${lineTxt} to solve ${eqHTML}.`),
+    ans:{type:'fields',unordered:true,fields:sols.map((r,i)=>({label:`x${i?'₂':'₁'} =`,ans:r,tol:tolX(spec)}))},
+    hint:T('คำตอบคือพิกัด x ของจุดที่เส้นตรงตัดกับกราฟ','The solutions are the x-coordinates of the points where the line meets the curve.'),
+    steps:[T(`เส้นตรงตัดกราฟที่ ${sols.map(r=>M('<i>x</i> '+(Math.abs(Math.round(r*100)/100-r)>1e-9?'≈ ':'= ')+d2(r))).join(T(' และ ',' and '))}`,`The line meets the curve at ${sols.map(r=>M('<i>x</i> '+(Math.abs(Math.round(r*100)/100-r)>1e-9?'≈ ':'= ')+d2(r))).join(' and ')}.`)],
+    solGraph:G(spec,add)};}
+
+/* ---------- generators: tables, graphs, solving ---------- */
+function bTableGraph(){const a=pick([1,1,-1,-1,0.5,-0.5,2,-2]),h=R(-2,2),k=R(1,Math.abs(a)===0.5?4:8)*(a>0?-1:1);
+  const b=-2*a*h,c=a*h*h+k,f=x=>a*x*x+b*x+c,xs=[-3,-2,-1,0,1,2,3].map(v=>v+h),spec=bookG(f,xs[0],xs[6],{sx:1});
+  const full=Math.random()<.5,blanks=full?[0,1,2,3,4,5,6]:shuffle([0,1,2,3,4,5,6]).slice(0,4).sort((u,v)=>u-v),eq=Y(P(a,b,c)),r=Math.sqrt(-k/a);
+  return {tag:T('แนว Practice Exercise 3.1 ข้อ 1–2 · Review Exercise 3 ข้อ 1','Like Practice Exercise 3.1 Q1–2 · Review Exercise 3 Q1'),
+    stem:T(`<p>พิจารณากราฟของ ${eq} สำหรับ ${M(`${num(xs[0])} ≤ <i>x</i> ≤ ${num(xs[6])}`)}</p>`,`<p>Consider the graph of ${eq} for ${M(`${num(xs[0])} ≤ <i>x</i> ≤ ${num(xs[6])}`)}.</p>`),
+    graph:spec,graphFrom:1,
+    parts:[partTable(eq,f,xs,blanks,spec,x=>subst(a,b,c,x)),partTP(a,h,k,spec),partRoots([h-r,h+r],spec),partSym(h,spec)]};}
+function bPQ(){let a,b,c,eq,xs,sb;
+  if(Math.random()<.35){const m=pick([1,3,5]),n=pick([3,5,7,9]);a=4;b=2*m-2*n;c=-m*n;eq=Y(`(2<i>x</i> + ${m})(2<i>x</i> − ${n})`);xs=[];for(let x=-Math.ceil(m/2)-1;x<=Math.ceil(n/2)+1;x++)xs.push(x);sb=x=>`(2(${num(x)}) + ${m})(2(${num(x)}) − ${n})`;}
+  else{a=pick([2,-2,3,-3,1,-1]);do{b=R(-8,8);c=R(-6,9);}while(b===0);eq=Y(P(a,b,c));const s0=Math.round(-b/(2*a))-2;xs=[];for(let x=s0;x<s0+6;x++)xs.push(x);if(Math.random()<.5)xs.unshift(s0-1);sb=x=>subst(a,b,c,x);}
+  const f=x=>a*x*x+b*x+c,ys=xs.map(x=>cl(f(x))),h=-b/(2*a),k=f(h),nb=xs.length>=7?3:2,L=['p','q','r'].slice(0,nb);
+  const idx=shuffle(xs.map((_,i)=>i)).slice(0,nb).sort((u,v)=>u-v),cells=ys.map((y,i)=>idx.includes(i)?`<i>${L[idx.indexOf(i)]}</i>`:num(y));
+  const x0=xs[0],x1=xs[xs.length-1],spec=bookG(f,x0,x1,{sx:1}),fend=a>0?Math.min(f(x0),f(x1)):Math.max(f(x0),f(x1));
+  const Ks=[];for(let K=Math.ceil(Math.min(k,fend))+1;K<Math.max(k,fend);K++)if(K!==0)Ks.push(K);
+  const extra=[];if(Ks.length){const K5=Ks.filter(v=>v%5===0);extra.push(partXwhen(a,b,c,pick(K5.length?K5:Ks),spec));}
+  const opt=[partYint(c,spec),partTPc(a,h,k,spec),partSym(h,spec)];if(extra.length)opt.splice(R(0,2),1);
+  return {tag:T('แนว Practice Exercise 3.1 ข้อ 3, 5 · Review Exercise 3 ข้อ 2–4','Like Practice Exercise 3.1 Q3, Q5 · Review Exercise 3 Q2–4'),
+    stem:`<p>${T('ตารางค่าต่อไปนี้เป็นของ','This table of values is for')} ${eq}</p>${tblHTML(xs,cells)}`,graph:spec,graphFrom:1,
+    parts:[partLetters(L,idx,xs,ys,sb,spec),...extra,...opt]};}
+function bSolve(){for(let tries=0;tries<50;tries++){const a=pick([1,1,-1,2,-2,0.5,-0.5]);const h=R(-1,2)+(Math.abs(a)>=1&&Math.random()<.35?0.5:0);
+    let b=-2*a*h;if(!Number.isInteger(b))continue;const kk=R(1,Math.abs(a)===0.5?4:Math.abs(a)===2?8:7)*(a>0?-1:1);let c=Math.round(kk+a*h*h);
+    const f=x=>a*x*x+b*x+c,k=f(h),x0=Math.floor(h-3),x1=Math.ceil(h+3),xs=[];for(let x=x0;x<=x1;x++)xs.push(x);
+    const r0=qRoots(a,b,c).filter(r=>inDom(r,x0,x1));if(r0.length!==2)continue;
+    const fend=a>0?Math.min(f(x0),f(x1)):Math.max(f(x0),f(x1)),Ks=[];for(let K=Math.ceil(Math.min(k,fend))+1;K<Math.max(k,fend);K++)if(K!==0)Ks.push(K);if(!Ks.length)continue;
+    const K=pick(Ks),sK=qRoots(a,b,c-K);if(sK.length!==2||!sK.every(r=>inDom(r,x0,x1)))continue;
+    const spec=bookG(f,x0,x1,{sx:1}),blanks=shuffle(xs.map((_,i)=>i)).slice(0,3).sort((u,v)=>u-v),eq=Y(P(a,b,c));
+    const eqK=eqZ(a,b,c-K);
+    const parts=[partTable(eq,f,xs,blanks,spec,x=>subst(a,b,c,x)),
+      partRoots(r0,spec,{prompt:T(`ใช้กราฟแก้สมการ ${eqZ(a,b,c)}`,`Use the graph to solve the equation ${eqZ(a,b,c)}.`),hint:T('คำตอบของสมการ = 0 คือพิกัด x ของจุดที่กราฟตัดแกน x','The solutions of an equation "= 0" are where the graph cuts the x-axis.')}),
+      partLineK(a,b,c,K,eqK),
+      partSols(sK,spec,{hlines:[{y:K,label:'y = '+num(K)}],points:sK.map(r=>({x:r,y:K,color:'l2'}))},eqK,Y(num(K)))];
+    if(Math.random()<.6){for(let t2=0;t2<30;t2++){const m=pick([-2,-1,1,2]),d=R(-6,6),s=qRoots(a,b-m,c-d);
+      if(s.length===2&&s.every(r=>inDom(r,x0,x1))&&Math.abs(s[1]-s[0])>0.8){const e2=M(P(a,b,c)+' = '+terms([[m,1],[d,0]]));const ln=x=>m*x+d;
+        parts.push(partLineMD(a,b,c,m,d,eqZ(a,b-m,c-d)),partSols(s,spec,{curves:[{f:ln,color:'l2'}],points:s.map(r=>({x:r,y:ln(r),color:'l2'}))},eqZ(a,b-m,c-d),Y(terms([[m,1],[d,0]]))));break;}}}
+    return {tag:T('แนว Practice Exercise 3.2 ข้อ 2–8 · Review Exercise 3 ข้อ 3–5','Like Practice Exercise 3.2 Q2–8 · Review Exercise 3 Q3–5'),
+      stem:T(`<p>พิจารณากราฟของ ${eq} สำหรับ ${M(`${x0} ≤ <i>x</i> ≤ ${x1}`)}</p>`,`<p>Consider the graph of ${eq} for ${M(`${x0} ≤ <i>x</i> ≤ ${x1}`)}.</p>`),graph:spec,graphFrom:1,parts};}
+  return bTableGraph();}
+function bKRange(){const a=pick([1,2,-1,-2]),h=R(-1,2),k0=R(-3,3),b=-2*a*h,c=a*h*h+k0,f=x=>a*x*x+b*x+c,spec=bookG(f,h-2,h+2,{sx:1}),eq=Y(P(a,b,c)),eqK=M(P(a,b,c)+' = <i>k</i>');
+  const up=a>0,ops=[[`<i>k</i> = ${num(k0)}`,'one'],[`<i>k</i> &gt; ${num(k0)}`,up?'two':'none'],[`<i>k</i> &lt; ${num(k0)}`,up?'none':'two'],[up?`<i>k</i> ≥ ${num(k0)}`:`<i>k</i> ≤ ${num(k0)}`,'x']];
+  const mk=(want,label)=>({prompt:T(`สมการ ${eqK} ${label[0]} เมื่อ`,`The equation ${eqK} has ${label[1]} when`),ans:mcq(ops.map(([t,w])=>[M(t),w===want])),
+    hint:T('จำนวนรากเท่ากับจำนวนจุดที่เส้นแนวนอน y = k ตัดกราฟ','The number of roots equals the number of points where the horizontal line y = k meets the graph.'),
+    steps:[T(`จุด${up?'ต่ำ':'สูง'}สุดของกราฟคือ ${M(coordTxt(h,k0))}`,`The ${up?'minimum':'maximum'} point of the graph is ${M(coordTxt(h,k0))}.`),
+      T(`เส้น y = k ผ่านจุดวกกลับ (k = ${num(k0)}) แตะกราฟ 1 จุด → รากซ้ำ · อยู่${up?'เหนือ':'ใต้'}จุดวกกลับ → ตัด 2 จุด · อยู่${up?'ใต้':'เหนือ'}จุดวกกลับ → ไม่ตัด`,`The line y = k through the turning point (k = ${num(k0)}) touches once → repeated roots · ${up?'above':'below'} it → cuts twice · ${up?'below':'above'} it → misses (no real roots).`)],
+    solGraph:G(spec,{hlines:[{y:k0,label:'y = '+num(k0)}]})});
+  const eqA=M(vForm(a,h,0)+' = 0');
+  return {tag:T('แนว Practice Exercise 3.2 ข้อ 10','Like Practice Exercise 3.2 Q10'),stem:T(`<p>กราฟของ ${eq} แสดงด้านล่าง</p>`,`<p>The graph of ${eq} is shown below.</p>`),graph:spec,graphFrom:0,
+    parts:[{prompt:T(`ใช้กราฟแก้สมการ ${eqA}`,`Use the graph to solve ${eqA}.`),ans:{type:'fields',fields:[{label:'x =',ans:h,tol:0.05}]},
+      hint:T(`${eqA} สมมูลกับ ${M(P(a,b,c)+' = '+num(k0))}`,`${eqA} is equivalent to ${M(P(a,b,c)+' = '+num(k0))}.`),
+      steps:[T(`${M(P(a,b,c))} = ${M(vForm(a,h,k0))} ดังนั้น ${eqA} สมมูลกับ ${M(P(a,b,c)+' = '+num(k0))}`,`${M(P(a,b,c))} = ${M(vForm(a,h,k0))}, so ${eqA} is the same as ${M(P(a,b,c)+' = '+num(k0))}.`),T(`เส้น ${M('<i>y</i> = '+num(k0))} แตะกราฟที่จุดวกกลับจุดเดียว ได้ ${M('<i>x</i> = '+num(h))} (รากซ้ำ)`,`The line ${M('<i>y</i> = '+num(k0))} touches the curve only at the turning point, giving ${M('<i>x</i> = '+num(h))} (repeated roots).`)],
+      solGraph:G(spec,{hlines:[{y:k0,label:'y = '+num(k0)}],points:[{x:h,y:k0,label:'x = '+num(h)}]})},
+      mk('one',['มีรากซ้ำ (real and repeated roots)','real and repeated roots']),mk('two',['มี 2 รากที่แตกต่างกัน (two real and distinct roots)','two real and distinct roots']),mk('none',['ไม่มีรากจริง (no real roots)','no real roots'])]};}
+function bIntersect(){const a=pick([1,2,-1,2]);let r1=R(-2,1),r2=r1+R(1,3);if(a===2&&Math.random()<.5){r1-=0.5;}
+  const m=nz(-2,2),d=R(-1,3),A=a,B=cl(-a*(r1+r2)+m),C=cl(a*r1*r2+d),f=x=>A*x*x+B*x+C,ln=x=>m*x+d;
+  const spec=bookG(f,r1-1.5,r2+1.5,{sx:1,curves:[{f:ln,color:'l2'}],points:[{x:r1,y:ln(r1),label:'P',color:'l2'},{x:r2,y:ln(r2),label:'Q',color:'l2'}],extraY:[ln(r1-1.5),ln(r2+1.5)]});
+  const bb=cl(-a*(r1+r2)),cc=cl(a*r1*r2);
+  return {tag:T('แนว Practice Exercise 3.2 ข้อ 12','Like Practice Exercise 3.2 Q12'),
+    stem:T(`<p>กราฟของ ${Y(P(A,B,C))} และเส้นตรง ${Y(terms([[m,1],[d,0]]))} ตัดกันที่จุด P และ Q ดังรูป</p>`,`<p>The graph of ${Y(P(A,B,C))} and the line ${Y(terms([[m,1],[d,0]]))} intersect at the points P and Q.</p>`),graph:spec,graphFrom:0,
+    parts:[partRoots([r1,r2],spec,{prompt:T('จงเขียนพิกัด x ของจุด P และ Q','Write down the x-coordinates of P and Q.'),labels:[T('x ของ P หรือ Q =','x of P or Q ='),T('x ของอีกจุด =','x of the other =')],hint:T('อ่านพิกัด x ของจุดตัดทั้งสองจาก grid','Read the x-coordinates of both intersection points from the grid.')}),
+      {prompt:T(`พิกัด x ของ P และ Q เป็นคำตอบของสมการ ${M(`${coefPre(a)}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i> = 0`)} จงหาค่า b และ c`,`The x-coordinates of P and Q are the solutions of ${M(`${coefPre(a)}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i> = 0`)}. Find b and c.`),
+        ans:{type:'fields',fields:[{label:'b =',ans:bb},{label:'c =',ans:cc}]},
+        hint:T('ที่จุดตัด ค่า y ของกราฟเท่ากับค่า y ของเส้นตรง ตั้งสมการแล้วย้ายข้าง','At the intersections the curve and the line have the same y. Set them equal and collect terms on one side.'),
+        steps:[M(`${P(A,B,C)} = ${terms([[m,1],[d,0]])}`),M(`${P(a,bb,cc)} = 0`),T(`ดังนั้น ${M('<i>b</i> = '+num(bb))}, ${M('<i>c</i> = '+num(cc))}`,`So ${M('<i>b</i> = '+num(bb))}, ${M('<i>c</i> = '+num(cc))}.`),T(`ตรวจ: ${M(`${coefPre(a)}(<i>x</i> ${r1<0?'+':'−'} ${num(Math.abs(r1))})(<i>x</i> ${r2<0?'+':'−'} ${num(Math.abs(r2))}) = 0`)} ให้ x = ${num(r1)} และ ${num(r2)}`,`Check: ${M(`${coefPre(a)}(<i>x</i> ${r1<0?'+':'−'} ${num(Math.abs(r1))})(<i>x</i> ${r2<0?'+':'−'} ${num(Math.abs(r2))}) = 0`)} gives x = ${num(r1)} and ${num(r2)}.`)]}]};}
+
+/* ---------- generators: reading features & applications ---------- */
+function bTriangle(){const p=R(1,5);let q;do q=R(1,6);while(q===p);const f=x=>(x+p)*(q-x),h=(q-p)/2,C=p*q,area=(p+q)*C/2;
+  const spec=bookG(f,-p-1,q+1,{sx:1,hlines:[{y:C}],points:[{x:-p,y:0,label:'A'},{x:q,y:0,label:'B'},{x:0,y:C,label:'C'},{x:q-p,y:C,label:'D'}]});
+  return {tag:T('แนว Review Exercise 3 ข้อ 8','Like Review Exercise 3 Q8'),
+    stem:T(`<p>กราฟของ ${Y(`(<i>x</i> + ${p})(${q} − <i>x</i>)`)} ตัดแกน x ที่ A และ B และตัดแกน y ที่ C เส้นแนวนอนที่ผ่าน C ตัดกราฟอีกครั้งที่ D</p>`,`<p>The graph of ${Y(`(<i>x</i> + ${p})(${q} − <i>x</i>)`)} cuts the x-axis at A and B, and the y-axis at C. The horizontal line through C meets the curve again at D.</p>`),graph:spec,graphFrom:0,
+    parts:[{prompt:T('จงหาพิกัดของจุด C','Find the coordinates of C.'),ans:{type:'fields',fields:[{label:T('พิกัด x =','x ='),ans:0},{label:T('พิกัด y =','y ='),ans:C}]},hint:T('C อยู่บนแกน y จึงมี x = 0','C is on the y-axis, so x = 0.'),steps:[T(`แทน ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = (0 + ${p})(${q} − 0) = ${C}`)} ดังนั้น C = (0, ${C})`,`Substitute ${M('<i>x</i> = 0')}: ${M(`<i>y</i> = (0 + ${p})(${q} − 0) = ${C}`)}, so C = (0, ${C}).`)]},
+      {prompt:T('จงหาพื้นที่ของสามเหลี่ยม ABC (ตารางหน่วย)','Find the area of triangle ABC (square units).'),ans:{type:'fields',fields:[{label:T('พื้นที่ =','area ='),ans:area}]},hint:T('ฐานคือ AB บนแกน x และความสูงคือ OC','The base is AB on the x-axis and the height is OC.'),
+        steps:[T(`ให้ ${M('<i>y</i> = 0')}: x = −${p} หรือ x = ${q} จึงได้ A(−${p}, 0), B(${q}, 0)`,`Let ${M('<i>y</i> = 0')}: x = −${p} or x = ${q}, so A(−${p}, 0), B(${q}, 0).`),M(`AB = ${q} − (−${p}) = ${p+q}`),M(`${T('พื้นที่','Area')} = ½ × ${p+q} × ${C} = ${num(area)}`)]},
+      partSym(h,spec),
+      {prompt:T('จงหาความยาวของ CD','Find the length of CD.'),ans:{type:'fields',fields:[{label:'CD =',ans:Math.abs(q-p)}]},hint:T('C และ D อยู่ห่างแกนสมมาตรเท่ากัน','C and D are the same distance from the line of symmetry.'),steps:[T(`C อยู่ห่างแกนสมมาตร ${M('<i>x</i> = '+num(h))} เป็นระยะ ${num(Math.abs(h))} หน่วย D จึงอยู่ที่ x = ${num(2*h)}`,`C is ${num(Math.abs(h))} units from the line of symmetry ${M('<i>x</i> = '+num(h))}, so D is at x = ${num(2*h)}.`),M(`CD = ${num(Math.abs(2*h))}`)]}]};}
+function bSymRoot(){const s=pick([-1,1]),r1=-R(2,5),h=R(0,2),r2=2*h-r1,b=-s*(r1+r2),c=s*r1*r2,f=x=>s*(x-r1)*(x-r2),k=f(h);let t;do t=R(r1,r2);while(t===0||t===h);const kt=f(t);
+  const spec=bookG(f,r1-1,r2+1,{sx:1,vlines:[{x:h,label:'x = '+h}],points:[{x:r1,y:0,label:`P(${r1}, 0)`},{x:r2,y:0,label:'R'},{x:0,y:c,label:'Q'}]});
+  const form=`${s<0?'−':''}<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>`;
+  return {tag:T('แนว Practice Exercise 1.6 ข้อ 10, 12','Like Practice Exercise 1.6 Q10, Q12'),
+    stem:T(`<p>กราฟของ ${Y(form)} เมื่อ b และ c เป็นค่าคงตัว ตัดแกนที่ P(${r1}, 0), Q และ R สมการแกนสมมาตรคือ ${M('<i>x</i> = '+h)}</p>`,`<p>The graph of ${Y(form)}, where b and c are constants, cuts the axes at P(${r1}, 0), Q and R. The line of symmetry is ${M('<i>x</i> = '+h)}.</p>`),graph:spec,graphFrom:0,
+    parts:[{prompt:T('จงหาพิกัด x ของ R และพิกัด y ของ Q','Find the x-coordinate of R and the y-coordinate of Q.'),ans:{type:'fields',fields:[{label:T('R: พิกัด x =','R: x ='),ans:r2},{label:T('Q: พิกัด y =','Q: y ='),ans:c}]},
+        hint:T('P และ R อยู่ห่างแกนสมมาตรเท่ากัน เมื่อได้ราก 2 ค่าแล้วเขียนสมการรูปแยกตัวประกอบ','P and R are the same distance from the line of symmetry. With both roots, write the factorised form.'),
+        steps:[T(`P อยู่ห่างแกนสมมาตร ${h-r1} หน่วย R จึงอยู่ที่ ${M(`<i>x</i> = ${h} + ${h-r1} = ${r2}`)}`,`P is ${h-r1} units from the line of symmetry, so R is at ${M(`<i>x</i> = ${h} + ${h-r1} = ${r2}`)}.`),Y(facForm(s,r1,r2)+' = '+P(s,b,c)),T(`แทน x = 0 ได้ Q = (0, ${c})`,`Substituting x = 0 gives Q = (0, ${c}).`)]},
+      partTPc(s,h,k,spec),
+      {prompt:T(`จุด (${t}, k) อยู่บนกราฟ จงหาค่า k`,`The point (${t}, k) lies on the graph. Find the value of k.`),ans:{type:'fields',fields:[{label:'k =',ans:kt}]},hint:T('แทนค่า x ลงในสมการที่หาได้','Substitute x into the equation you found.'),steps:[M(`<i>k</i> = ${subst(s,b,c,t)} = ${num(kt)}`)],solGraph:G(spec,{points:[{x:t,y:kt,label:`(${t}, ${num(kt)})`,color:'l2'}]})},
+      {prompt:T('จงหาค่า b และ c','Find the values of b and c.'),ans:{type:'fields',fields:[{label:'b =',ans:b},{label:'c =',ans:c}]},hint:T('กระจายรูปแยกตัวประกอบ','Expand the factorised form.'),steps:[Y(facForm(s,r1,r2)+' = '+P(s,b,c)),T(`ดังนั้น b = ${b}, c = ${c}`,`So b = ${b}, c = ${c}.`)]}]};}
+function bProjectile(){
+  if(Math.random()<.55){const B=pick([10,15,20,25]),Tg=B/5,f=t=>-5*t*t+B*t,ts=[];for(let t=0;t<=Tg+1e-9;t+=0.5)ts.push(cl(t));const hs=ts.map(t=>cl(f(t)));
+    const pi=R(1,ts.length-1),cells=hs.map((v,i)=>i===pi?'<i>p</i>':num(v)),tm=Tg/2,hm=f(tm);
+    const t1s=ts.filter(t=>t>0&&t<tm-1e-9),t1=pick(t1s.length?t1s:[0.5]),H=f(t1),dur=Tg-2*t1;
+    const spec=bookG(f,0,Tg,{sx:0.5,xname:'t',yname:'h',padX:0.15});
+    return {tag:T('แนว Practice Exercise 3.1 ข้อ 6 · Worked Example 4','Like Practice Exercise 3.1 Q6 · Worked Example 4'),
+      stem:T(`<p>นักกอล์ฟตีลูกกอล์ฟจากพื้น ความสูง h เมตรของลูกกอล์ฟที่เวลา t วินาทีหลังจากออกจากพื้น เป็นไปตามสมการ ${M('<i>h</i> = '+P(-5,B,0,'t'))} สำหรับ ${M('0 ≤ <i>t</i> ≤ '+num(Tg))}</p>${tblHTML(ts,cells,'t','h')}`,`<p>A golfer strikes a ball into the air from the ground. Its height h metres at time t seconds is modelled by ${M('<i>h</i> = '+P(-5,B,0,'t'))} for ${M('0 ≤ <i>t</i> ≤ '+num(Tg))}.</p>${tblHTML(ts,cells,'t','h')}`),graph:spec,graphFrom:1,
+      parts:[partLetters(['p'],[pi],ts,hs,t=>subst(-5,B,0,t),spec,'t'),
+        partTP(-1,tm,hm,spec,{xn:'t',yn:'h',prompt:T('ใช้กราฟประมาณความสูงสูงสุดของลูกกอล์ฟ และเวลาที่เกิดขึ้น','Use the graph to estimate the maximum height of the ball and the time at which it occurs.'),l1:T('ความสูงสูงสุด (m) =','max height (m) ='),l2:T('เวลา t (s) =','time t (s) =')}),
+        {prompt:T('ลูกกอล์ฟตกถึงพื้นอีกครั้งที่เวลาใด','At what time does the ball strike the ground again?'),ans:{type:'fields',fields:[{label:'t (s) =',ans:Tg,tol:tolX(spec)}]},hint:T('ลูกกอล์ฟถึงพื้นเมื่อ h = 0 (ไม่นับ t = 0)','The ball is on the ground when h = 0 (not counting t = 0).'),steps:[M(`${P(-5,B,0,'t')} = 0 → −5<i>t</i>(<i>t</i> − ${num(Tg)}) = 0`),T(`t = 0 (ตอนเริ่มตี) หรือ t = ${num(Tg)} วินาที`,`t = 0 (when hit) or t = ${num(Tg)} s.`)],solGraph:G(spec,{points:[{x:Tg,y:0,label:`(${num(Tg)}, 0)`}]})},
+        {prompt:T(`ลากเส้นตรงที่เหมาะสม แล้วหาช่วงเวลาที่ลูกกอล์ฟอยู่สูงจากพื้นอย่างน้อย ${num(H)} m`,`By drawing a suitable straight line, find the duration for which the ball is at least ${num(H)} m above the ground.`),ans:{type:'fields',fields:[{label:T('ช่วงเวลา (s) =','duration (s) ='),ans:dur,tol:0.15}]},
+          hint:T(`ลากเส้น h = ${num(H)} แล้วหาเวลาของจุดตัดทั้งสอง ช่วงเวลาคือผลต่างของเวลาทั้งสอง`,`Draw h = ${num(H)}, read the two times where it meets the curve, then subtract.`),
+          steps:[T(`เส้น h = ${num(H)} ตัดกราฟที่ t = ${num(t1)} และ t = ${num(Tg-t1)}`,`The line h = ${num(H)} meets the curve at t = ${num(t1)} and t = ${num(Tg-t1)}.`),M(`${num(Tg-t1)} − ${num(t1)} = ${num(dur)}`)+T(' วินาที',' s')],
+          solGraph:G(spec,{hlines:[{y:H,label:'h = '+num(H)}],points:[{x:t1,y:H,color:'l2'},{x:Tg-t1,y:H,color:'l2'}]})}]};}
+  const B=pick([10,20,30]),C=pick([40,60,80]),f=t=>-5*t*t+B*t+C,Tn=(B+Math.sqrt(B*B+20*C))/10,tm=B/10,hm=f(tm),T6=Math.ceil(Tn);
+  const spec=bookG(f,0,T6,{sx:1,xname:'t',yname:'h',padX:0.2});
+  const H=C,dur=B/5;
+  return {tag:T('แนว Review Exercise 3 ข้อ 7 · Practice Exercise 3.2 ข้อ 9','Like Review Exercise 3 Q7 · Practice Exercise 3.2 Q9'),
+    stem:T(`<p>ยิงลูกปืนใหญ่จากยอดหน้าผาริมทะเล ความสูง h เมตรเหนือระดับน้ำทะเลที่เวลา t วินาที เป็นไปตามสมการ ${M('<i>h</i> = '+P(-5,B,C,'t'))}</p>`,`<p>A cannon ball is fired from the top of a cliff next to the sea. Its height h metres above sea level t seconds later is modelled by ${M('<i>h</i> = '+P(-5,B,C,'t'))}.</p>`),graph:spec,graphFrom:0,
+    parts:[partYint(C,spec,{prompt:T('ใช้กราฟประมาณความสูงของหน้าผา','Use the graph to estimate the height of the cliff.'),label:T('ความสูงหน้าผา (m) =','cliff height (m) =')}),
+      partTP(-1,tm,hm,spec,{xn:'t',yn:'h',prompt:T('ใช้กราฟประมาณความสูงสูงสุดของลูกปืนใหญ่เหนือระดับน้ำทะเล และเวลาที่เกิดขึ้น','Use the graph to estimate the maximum height of the cannon ball above sea level and when it occurs.'),l1:T('ความสูงสูงสุด (m) =','max height (m) ='),l2:T('เวลา t (s) =','time t (s) =')}),
+      {prompt:T('ลูกปืนใหญ่ตกถึงผิวน้ำทะเลที่เวลาใด','At what time does the cannon ball hit the sea?'),ans:{type:'fields',fields:[{label:'t (s) ≈',ans:Tn,tol:tolX(spec)}]},hint:T('ผิวน้ำคือ h = 0 อ่านจุดตัดแกน t ทางขวา','Sea level is h = 0. Read where the graph cuts the t-axis on the right.'),steps:[T(`กราฟตัดแกน t ที่ t ${Math.abs(Tn-Math.round(Tn))>1e-9?'≈':'='} ${d2(Tn)}`,`The graph cuts the t-axis at t ${Math.abs(Tn-Math.round(Tn))>1e-9?'≈':'='} ${d2(Tn)}.`)],solGraph:G(spec,{points:[{x:Tn,y:0,label:d2(Tn)}]})},
+      {prompt:T(`ลูกปืนใหญ่อยู่สูงกว่าหน้าผา (สูงกว่า ${C} m) เป็นเวลานานเท่าใด`,`For how long is the cannon ball higher than the cliff (above ${C} m)?`),ans:{type:'fields',fields:[{label:T('ช่วงเวลา (s) =','duration (s) ='),ans:dur,tol:0.15}]},hint:T(`ลากเส้น h = ${C} แล้วหาเวลาของจุดตัดทั้งสอง`,`Draw h = ${C} and read the two times where it meets the curve.`),
+        steps:[T(`เส้น h = ${C} ตัดกราฟที่ t = 0 และ t = ${num(dur)} (สมมาตรรอบ t = ${num(tm)})`,`The line h = ${C} meets the curve at t = 0 and t = ${num(dur)} (symmetric about t = ${num(tm)}).`),T(`ช่วงเวลา = ${num(dur)} วินาที`,`Duration = ${num(dur)} s.`)],solGraph:G(spec,{hlines:[{y:H,label:'h = '+H}],points:[{x:dur,y:H,color:'l2'}]})}]};}
+function bArch(){
+  if(Math.random()<.55){const bb=pick([2,3,4]),W=2*bb,f=x=>-0.5*x*x+bb*x,H=bb*bb/2,X=cl(Math.round(W*0.77*10)/10),yX=f(X);
+    const spec=bookG(f,0,W,{sx:1,points:[{x:0,y:0,label:'A'},{x:W,y:0,label:'C'},{x:W/2,y:H,label:'B'}]});
+    return {tag:T('แนว Practice Exercise 3.1 ข้อ 7','Like Practice Exercise 3.1 Q7'),
+      stem:T(`<p>ซุ้มโค้ง ABC เป็นพาราโบลาที่มีสมการ ${Y(P(-0.5,bb,0))} สำหรับ ${M(`0 ≤ <i>x</i> ≤ ${W}`)} เมื่อ x เมตรและ y เมตรเป็นระยะแนวนอนและแนวตั้งของจุดบนซุ้มโค้งจากเชิงซุ้ม A</p>`,`<p>An arch ABC is a parabola with equation ${Y(P(-0.5,bb,0))} for ${M(`0 ≤ <i>x</i> ≤ ${W}`)}, where x m and y m are the horizontal and vertical distances of a point on the arch from the foot A.</p>`),graph:spec,graphFrom:0,
+      parts:[{prompt:T(`จงหาระยะแนวตั้งของจุด P ที่อยู่ห่างจากเชิงซุ้ม A ในแนวนอน ${num(X)} m`,`Find the vertical distance of the point P whose horizontal distance from A is ${num(X)} m.`),ans:{type:'fields',fields:[{label:'y (m) =',ans:yX,tol:0.05}]},hint:T('แทนค่า x ลงในสมการ','Substitute x into the equation.'),steps:[M(`<i>y</i> = ${subst(-0.5,bb,0,X)} = ${num(yX)}`)],solGraph:G(spec,{points:[{x:X,y:yX,label:'P',color:'l2'}]})},
+        {prompt:T('ใช้กราฟประมาณความยาว AC ซึ่งเป็นความกว้างของฐานซุ้มโค้ง','Use the graph to estimate the length of AC, the width of the bottom of the arch.'),ans:{type:'fields',fields:[{label:'AC (m) =',ans:W,tol:tolX(spec)}]},hint:T('A และ C คือจุดที่กราฟตัดแกน x','A and C are where the graph cuts the x-axis.'),steps:[M(`${P(-0.5,bb,0)} = 0 → <i>x</i>(${bb} − ½<i>x</i>) = 0`),T(`x = 0 หรือ x = ${W} ดังนั้น AC = ${W} m`,`x = 0 or x = ${W}, so AC = ${W} m.`)]},
+        partTP(-1,W/2,H,spec,{prompt:T('ใช้กราฟประมาณความสูงสูงสุดของซุ้มโค้ง และค่า x ที่เกิดขึ้น','Use the graph to estimate the maximum height of the arch and the value of x at which it occurs.'),l1:T('ความสูงสูงสุด (m) =','max height (m) =')})]};}
+  const c0=pick([2,3,4]),bb=pick([2,4,6]),f=x=>c0+bb*x-x*x,OD=(bb+Math.sqrt(bb*bb+4*c0))/2,hB=bb/2,kB=c0+bb*bb/4;
+  const spec=bookG(f,0,OD,{sx:1,points:[{x:0,y:c0,label:'A'},{x:hB,y:kB,label:'B'},{x:OD,y:0,label:'D'}]});
+  return {tag:T('แนว Practice Exercise 1.6 ข้อ 15','Like Practice Exercise 1.6 Q15'),
+    stem:T(`<p>ซุ้มโค้ง ABC ของอาคารมีรูปร่างตามสมการ ${Y(terms([[c0,0],[bb,1],[-1,2]]))} โดย O เป็นจุดกำเนิดบนพื้น OA เป็นเสาแนวตั้ง และ D เป็นจุดบนพื้นที่ซุ้มโค้งต่อลงมาถึง (หน่วยเป็นเมตร)</p>`,`<p>The shape of an arch ABC in a building is modelled by ${Y(terms([[c0,0],[bb,1],[-1,2]]))}, where O is the origin on the ground, OA is a vertical column, and D is the point on the ground the arch would reach (units in metres).</p>`),graph:spec,graphFrom:0,
+    parts:[partYint(c0,spec,{prompt:T('เสา OA สูงเท่าใด','What is the height of the column OA?'),label:'OA (m) ='}),
+      {prompt:T('จงหาระยะ OD (ประมาณจากกราฟ)','Find the distance OD (estimate from the graph).'),ans:{type:'fields',fields:[{label:'OD (m) ≈',ans:OD,tol:tolX(spec)}]},hint:T('D คือจุดที่กราฟตัดแกน x ทางขวา','D is where the graph cuts the x-axis on the right.'),steps:[T(`ให้ y = 0: ${M(terms([[c0,0],[bb,1],[-1,2]])+' = 0')}`,`Let y = 0: ${M(terms([[c0,0],[bb,1],[-1,2]])+' = 0')}`),T(`ได้ x ≈ ${d2(OD)} (ค่าบวก) ดังนั้น OD ≈ ${d2(OD)} m`,`x ≈ ${d2(OD)} (the positive root), so OD ≈ ${d2(OD)} m.`)]},
+      partTPc(-1,hB,kB,spec)]};}
+function bBusiness(){const v=pick(['sign','chairs','vases','numbers']);
+  if(v==='sign'){const W=R(2,5),Lg=W+2*R(1,3),bb=Lg-W,cc=Lg*W,f=x=>-x*x+bb*x+cc,xm=bb/2,Am=f(xm),spec=bookG(f,0,Lg,{sx:1,yname:'A'});
+    return {tag:T('แนว Practice Exercise 3.1 ข้อ 8','Like Practice Exercise 3.1 Q8'),
+      stem:T(`<p>ป้ายร้านรูปสี่เหลี่ยมผืนผ้าขนาด ${Lg} m × ${W} m ผู้จัดการลดความยาวแนวนอนลง x m และเพิ่มความสูงแนวตั้งขึ้น x m พื้นที่ป้ายใหม่คือ A m²</p>`,`<p>A shop has a rectangular signboard ${Lg} m by ${W} m. The manager decreases the horizontal length by x m and increases the vertical length by x m. The new area is A m².</p>`),graph:spec,graphFrom:1,
+      parts:[{prompt:T(`แสดงว่า ${M('<i>A</i> = −<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>')} แล้วหาค่า b และ c`,`Show that ${M('<i>A</i> = −<i>x</i><sup>2</sup> + <i>bx</i> + <i>c</i>')} and find b and c.`),ans:{type:'fields',fields:[{label:'b =',ans:bb},{label:'c =',ans:cc}]},hint:T('ความยาวใหม่ × ความสูงใหม่ แล้วกระจาย','New length × new height, then expand.'),steps:[M(`<i>A</i> = (${Lg} − <i>x</i>)(${W} + <i>x</i>) = ${P(-1,bb,cc)}`),T(`b = ${bb}, c = ${cc}`,`b = ${bb}, c = ${cc}.`)],solGraph:spec},
+        partTP(-1,xm,Am,spec,{yn:'A',prompt:T('ใช้กราฟหาพื้นที่มากที่สุดของป้าย และค่า x ที่ทำให้ได้พื้นที่นั้น','Use the graph to find the greatest area of the signboard and the value of x that gives it.'),l1:T('พื้นที่มากที่สุด (m²) =','greatest area (m²) ='),extra:[T(`ป้ายกลายเป็นสี่เหลี่ยมจัตุรัสด้านละ ${num((Lg+W)/2)} m`,`The sign becomes a square of side ${num((Lg+W)/2)} m.`)]})]};}
+  if(v==='chairs'){const m=R(8,12),mn=R(4,10)*5,c0=m*m+mn,f=x=>x*x-2*m*x+c0,X1=Math.min(15,2*m),spec=bookG(f,0,X1,{sx:1});
+    return {tag:T('แนว Practice Exercise 3.2 ข้อ 11','Like Practice Exercise 3.2 Q11'),
+      stem:T(`<p>ร้านเฟอร์นิเจอร์พบว่าถ้าผลิตเก้าอี้วันละ x ตัว (${M(`0 ≤ <i>x</i> ≤ ${X1}`)}) ต้นทุนต่อตัว $y เป็นไปตาม ${Y(P(1,-2*m,c0))}</p>`,`<p>A furniture seller finds that if x chairs are made in a day (${M(`0 ≤ <i>x</i> ≤ ${X1}`)}), the cost $y for each chair is modelled by ${Y(P(1,-2*m,c0))}.</p>`),graph:spec,graphFrom:0,
+      parts:[partTP(1,m,mn,spec,{prompt:T('ใช้กราฟหาจำนวนเก้าอี้ที่ควรผลิตต่อวันเพื่อให้ต้นทุนต่อตัวต่ำสุด และต้นทุนต่ำสุดนั้น','Use the graph to find the number of chairs per day that keeps the cost per chair to a minimum, and that minimum cost.'),l1:T('ต้นทุนต่ำสุด ($) =','minimum cost ($) ='),l2:T('จำนวนเก้าอี้ =','number of chairs =')}),
+        {prompt:T(`ระยะตัดแกน y ของกราฟ (y = ${c0}) มีความหมายอย่างไรในบริบทนี้`,`What does the y-intercept (y = ${c0}) mean in this context?`),ans:mcq([[T(`ตามแบบจำลอง ต้นทุนต่อตัวคือ $${c0} เมื่อไม่ผลิตเลย ซึ่งไม่มีความหมายจริงเพราะไม่มีเก้าอี้ให้คิดต้นทุน`,`By the model, the cost per chair is $${c0} when no chairs are made, which has no real meaning since there are no chairs.`),true],[T(`ต้นทุนต่ำสุดต่อตัวคือ $${c0}`,`The minimum cost per chair is $${c0}.`),false],[T(`ผลิตได้มากที่สุด ${c0} ตัวต่อวัน`,`At most ${c0} chairs can be made per day.`),false],[T(`กำไรต่อวันคือ $${c0}`,`The daily profit is $${c0}.`),false]]),hint:T('ระยะตัดแกน y คือค่า y เมื่อ x = 0','The y-intercept is the value of y when x = 0.'),steps:[T(`เมื่อ x = 0 (ไม่ผลิตเลย) สูตรให้ y = ${c0}`,`When x = 0 (nothing made), the formula gives y = ${c0}.`),T('แต่เมื่อไม่มีเก้าอี้ "ต้นทุนต่อตัว" ไม่มีความหมายในโลกจริง','But with no chairs, a "cost per chair" has no real-world meaning.')]}]};}
+  if(v==='vases'){const B=pick([40,48,56]),C=pick([120,150,160]),f=x=>-2*x*x+B*x-C,xm=B/4,ym=f(xm),r=qRoots(-2,B,-C),spec=bookG(f,r[0],r[1],{sx:2});
+    return {tag:T('แนว Practice Exercise 1.6 ข้อ 11','Like Practice Exercise 1.6 Q11'),
+      stem:T(`<p>รายได้สุทธิรายวัน $y ของแซมจากการผลิตแจกัน x ใบต่อวัน คือ ${Y(P(-2,B,-C))} กราฟด้านล่างแสดงช่วงที่ ${M('<i>y</i> ≥ 0')}</p>`,`<p>Sam's daily earning $y from producing x vases a day is ${Y(P(-2,B,-C))}. The graph shows the part where ${M('<i>y</i> ≥ 0')}.</p>`),graph:spec,graphFrom:0,
+      parts:[{prompt:T('จงหาค่า y เมื่อ x = 0 และค่านี้หมายถึงอะไร','Find y when x = 0. What does it mean?'),ans:mcq([[T(`y = −${C} หมายถึงขาดทุน $${C} ต่อวันถ้าไม่ผลิตเลย (ต้นทุนคงที่)`,`y = −${C}: Sam loses $${C} a day if no vases are made (fixed costs).`),true],[T(`y = ${C} หมายถึงได้กำไร $${C} ถ้าไม่ผลิตเลย`,`y = ${C}: Sam earns $${C} if no vases are made.`),false],[T(`y = 0 หมายถึงไม่มีรายได้และไม่มีค่าใช้จ่าย`,`y = 0: no income and no costs.`),false],[T(`y = −${C} หมายถึงผลิตแจกันได้ ${C} ใบ`,`y = −${C}: ${C} vases are made.`),false]]),hint:T('แทน x = 0 ค่าลบหมายถึงขาดทุน','Substitute x = 0. A negative earning is a loss.'),steps:[M(`<i>y</i> = −2(0)<sup>2</sup> + ${B}(0) − ${C} = −${C}`),T(`ถ้าไม่ผลิตเลยจะขาดทุน $${C} ต่อวัน ซึ่งเป็นต้นทุนคงที่`,`Making nothing loses $${C} a day: the fixed costs.`)]},
+        partTP(-1,xm,ym,spec,{prompt:T('ต้องผลิตแจกันวันละกี่ใบจึงได้กำไรสูงสุด และกำไรสูงสุดเป็นเท่าใด','How many vases must be made daily to maximise the profit, and what is the maximum daily profit?'),l1:T('กำไรสูงสุด ($) =','maximum profit ($) ='),l2:T('จำนวนแจกัน =','number of vases ='),extra:[T(`ตรวจ: x = −b ÷ 2a = −${B} ÷ (2 × −2) = ${xm}`,`Check: x = −b ÷ 2a = −${B} ÷ (2 × −2) = ${xm}.`)]})]};}
+  const d=pick([4,6,7,8,9,10]),f=x=>x*x+d*x,xm=-d/2,ym=f(xm),spec=bookG(f,-d-1,1,{sx:1});
+  return {tag:T('แนว Practice Exercise 1.6 ข้อ 13','Like Practice Exercise 1.6 Q13'),
+    stem:T(`<p>ผลต่างของจำนวนสองจำนวนคือ ${d} จำนวนที่น้อยกว่าคือ x และผลคูณของสองจำนวนคือ y</p>`,`<p>The difference between two numbers is ${d}. The smaller number is x and the product of the two numbers is y.</p>`),graph:spec,graphFrom:1,
+    parts:[{prompt:T('จงเขียน y ในรูปของ x','Express y in terms of x.'),ans:mcq([[Y(`<i>x</i>(<i>x</i> + ${d})`),true],[Y(`<i>x</i>(<i>x</i> − ${d})`),false],[Y(`<i>x</i> + ${d}`),false],[Y(`${d}<i>x</i>`),false]]),hint:T(`จำนวนที่มากกว่าคือ x + ${d}`,`The larger number is x + ${d}.`),steps:[T(`จำนวนที่มากกว่า = x + ${d}`,`Larger number = x + ${d}`),Y(`<i>x</i>(<i>x</i> + ${d}) = ${P(1,d,0)}`)],solGraph:spec},
+      partTP(1,xm,ym,spec,{prompt:T('ใช้กราฟหาผลคูณที่น้อยที่สุด และค่า x ที่ทำให้เกิดผลคูณนั้น','Use the graph to find the minimum product and the value of x that gives it.'),l1:T('ผลคูณน้อยที่สุด =','minimum product =')}),
+      {prompt:T('จำนวนสองจำนวนที่ให้ผลคูณน้อยที่สุดคือจำนวนใด','What are the two numbers that give the smallest product?'),ans:{type:'fields',fields:[{label:T('จำนวนที่น้อยกว่า =','smaller ='),ans:xm},{label:T('จำนวนที่มากกว่า =','larger ='),ans:xm+d}]},hint:T(`ใช้ค่า x จากข้อก่อน แล้วบวก ${d}`,`Use x from the previous part, then add ${d}.`),steps:[T(`x = ${num(xm)} และ x + ${d} = ${num(xm+d)}`,`x = ${num(xm)} and x + ${d} = ${num(xm+d)}.`),T(`ผลคูณ = ${num(xm)} × ${num(xm+d)} = ${num(ym)}`,`Product = ${num(xm)} × ${num(xm+d)} = ${num(ym)}.`)]}]};}
+
+LEVELS.splice(LEVELS.length-1,0,
+  {name:T('แนวแบบฝึกหัด: ตาราง กราฟ และการแก้สมการ','Book-style: tables, graphs & solving'),desc:T('Practice Exercise 3.1, 3.2 และ Review Exercise 3 แบบหลายข้อย่อย','Multi-part questions like Practice Exercises 3.1, 3.2 and Review Exercise 3'),gens:[bTableGraph,bPQ,bSolve,bKRange,bIntersect]},
+  {name:T('แนวแบบฝึกหัด: อ่านกราฟและโจทย์ปัญหา','Book-style: reading graphs & problems'),desc:T('Review Exercise 3, Practice Exercise 1.6 และโจทย์ประยุกต์ในหนังสือ','Review Exercise 3, Practice Exercise 1.6 and the textbook applications'),gens:[bTriangle,bSymRoot,bProjectile,bArch,bBusiness]});
+
+/* ===================== practice engine (multi-part) ===================== */
+const session={n:0,c:0,s:0};
+const hist=[];let hi=-1;let cur={li:0};
+const asMulti=q=>q.parts?q:{stem:'',graph:q.graph,graphFrom:0,parts:[q]};
+const newPS=()=>({att:0,done:false,ok:false,recorded:false,sel:null,vals:[],hint:false,fb:null});
+const qDone=c=>!!c.ps&&c.ps.every(p=>p.done);
+const PL=['(a)','(b)','(c)','(d)','(e)','(f)','(g)'];
+const PS=()=>cur.ps[cur.pi],PQ=()=>cur.q.parts[cur.pi];
+function renderLevels(){document.getElementById('levels').innerHTML=LEVELS.map((L,i)=>{const p=prog[i]||{n:0,c:0,r:[]},pct=p.r.length?Math.round(p.r.reduce((a,b)=>a+b,0)/p.r.length*100):0,master=p.r.length>=5&&pct>=80;
+  return `<button class="lvl" data-i="${i}" aria-current="${i===cur.li}"><span class="no">${L.mixed?'★':i+1}</span><span class="nm">${L.name}</span><span class="meta"><span class="bar" title="${T('ความแม่นยำ 10 ข้อล่าสุด','Accuracy over the last 10 answers')}"><i style="width:${pct}%"></i></span>${master?`<span class="chip">${T('คล่องแล้ว','Mastered')}</span>`:`<span>${T('ถูก','')} ${p.c}/${p.n}${T('',' correct')}</span>`}</span></button>`;}).join('');
+  document.querySelectorAll('.lvl').forEach(b=>b.addEventListener('click',()=>newQ(Number(b.dataset.i))));}
+function updateStats(){document.getElementById('stN').textContent=session.n;document.getElementById('stC').textContent=session.c;document.getElementById('stS').textContent=session.s;}
+const playable=()=>LEVELS.map((L,i)=>i).filter(i=>!LEVELS[i].mixed);
+function newQ(li){if(li===undefined)li=cur.li;const L=LEVELS[li];let gen,src=li;if(L.mixed){src=pick(playable());gen=pick(LEVELS[src].gens);}else gen=pick(L.gens);
+  const q=asMulti(gen());cur={li,src,q,pi:0,ps:q.parts.map(newPS)};hist.push(cur);if(hist.length>60)hist.shift();hi=hist.length-1;renderLevels();drawQ();}
+function goTo(i){if(i<0||i>=hist.length)return;hi=i;cur=hist[i];renderLevels();drawQ();document.getElementById('qcard').scrollIntoView({block:'start',behavior:'smooth'});}
+function goNext(){if(!qDone(cur))return;if(hi<hist.length-1)goTo(hi+1);else newQ();}
+const numHelp=()=>T('ใช้เครื่องหมาย - สำหรับค่าลบ พิมพ์ทศนิยมหรือเศษส่วนได้ เช่น 2.5 หรือ 5/2','Use - for negative numbers. Decimals and fractions are fine, e.g. 2.5 or 5/2.');
+function ansHTML(a){
+  if(a.type==='mcq')return `<div class="opts" role="radiogroup">${a.options.map((o,i)=>`<button class="opt" role="radio" aria-checked="false" data-i="${i}"><span class="k">${T('กขคง','ABCD')[i]}</span><span>${o}</span></button>`).join('')}</div>`;
+  if(a.type==='table'){let k=0;const xn=a.xname||'x',yn=a.yname||'y';const cells=a.ys.map((y,i)=>a.blanks.includes(i)?`<td class="tin"><input class="ain" id="ans-${k++}" inputmode="text" autocomplete="off" aria-label="${yn} ${T('เมื่อ','at')} ${xn} = ${num(a.xs[i])}"></td>`:`<td>${num(y)}</td>`).join('');
+    return `<div class="tv-wrap"><table class="tv"><tr><th>${xn}</th>${a.xs.map(x=>`<td>${num(x)}</td>`).join('')}</tr><tr><th>${yn}</th>${cells}</tr></table></div><div class="inhelp">${numHelp()}</div>`;}
+  const est=a.fields.some(f=>(f.tol||0)>0.05);
+  return `<div class="fields">${a.fields.map((f,i)=>`<label class="fld"><span>${f.label}</span><input class="ain" id="ans-${i}" inputmode="text" autocomplete="off" placeholder="${T('ตัวเลข','number')}"></label>`).join('')}</div><div class="inhelp">${numHelp()}${a.unordered?T(' · ใส่คำตอบลำดับใดก็ได้',' · Answers can go in either order.'):''}${est?T(' · ค่าที่อ่านจากกราฟยอมให้คลาดเคลื่อนได้เล็กน้อย',' · Values read from the graph may be approximate.'):''}</div>`;}
+function expected(a){if(a.type==='table')return {vals:a.blanks.map(i=>a.ys[i]),tols:a.blanks.map(()=>a.tol??0.011)};return {vals:a.fields.map(f=>f.ans),tols:a.fields.map(f=>f.tol??a.tol??0.011)};}
+function answerText(a){if(a.type==='mcq')return a.options[a.correct];
+  if(a.type==='table')return a.blanks.map(i=>`${a.xname||'x'} = ${num(a.xs[i])} → <b>${num(a.ys[i])}</b>`).join(' · ');
+  return a.fields.map(f=>`${f.label} <b>${(f.tol||0)>0.05?approx(f.ans):num(f.ans)}</b>`).join(' · ');}
+function statusHTML(){const P=cur.q.parts,multi=P.length>1,n=cur.ps.filter(p=>p.ok).length;
+  if(qDone(cur))return n===P.length?`<span class="chip">${T('ตอบถูก','Correct')}${multi?` ${n}/${P.length}`:''}</span>`:`<span class="chip bad">${multi?T('ถูก','Correct')+` ${n}/${P.length}`:T('ดูเฉลยแล้ว','Solution viewed')}</span>`;
+  return `<span class="chip pend">${multi?T('ทำแล้ว','Done')+` ${cur.ps.filter(p=>p.done).length}/${P.length}`:T('ยังไม่ได้ตอบ','Not answered')}</span>`;}
+function donePartHTML(i){const p=cur.q.parts[i],s=cur.ps[i];
+  return `<div class="part pdone"><div class="plabel">${PL[i]} ${s.ok?'<span class="chip">✓</span>':'<span class="chip bad">✗</span>'}</div><div class="prompt">${p.prompt}</div><div class="pans">${T('คำตอบ','Answer')}: ${answerText(p.ans)}</div><details><summary>${T('ดูวิธีทำ','Show working')}</summary><ol>${p.steps.map(t=>`<li>${t}</li>`).join('')}</ol></details></div>`;}
+function drawQ(){const L=LEVELS[cur.li],q=cur.q,Ps=q.parts,multi=Ps.length>1,review=hi<hist.length-1,done=qDone(cur),p=PQ(),ps=PS();
+  document.getElementById('qTitle').textContent=(L.mixed?T('ทดสอบรวม','Mixed test'):T('ระดับ ','Level ')+(cur.li+1))+' · '+(L.mixed?LEVELS[cur.src].name:L.name);
+  document.getElementById('qDesc').textContent=L.mixed?T('โจทย์สุ่มจากทุกระดับ','Random questions from every level'):L.desc;
+  const showG=q.graph&&(done||cur.pi>=q.graphFrom);
+  let h=`<div class="qnav"><button class="navbtn" id="bPrev" ${hi<=0?'disabled':''}>${T('← ข้อก่อนหน้า','← Previous')}</button><span class="qpos">${T('ข้อ','Question')} <b>${hi+1}</b> ${T('จาก','of')} ${hist.length}${review?T(' · กำลังทบทวน',' · reviewing'):''} <span id="stWrap">${statusHTML()}</span></span><button class="navbtn" id="bFwd" ${done?'':`disabled title="${T('ทำข้อนี้ให้เสร็จก่อน','Finish this question first')}"`}>${review?T('ข้อถัดไป →','Next →'):T('ข้อใหม่ →','New question →')}</button></div>`;
+  if(q.tag)h+=`<div class="srctag">${q.tag}</div>`;
+  if(q.stem)h+=`<div class="prompt">${q.stem}</div>`;
+  if(q.graph)h+=showG?`<canvas class="graph qgraph" id="qGraph" aria-label="${T('กราฟประกอบโจทย์','Graph for the question')}"></canvas>`:`<div class="glock">${T('กราฟจะแสดงเมื่อทำข้อ (a) เสร็จ ระหว่างนี้ลองร่างกราฟบนกระดาษกราฟตามตารางค่า','The graph appears once part (a) is done. Meanwhile, try plotting it on graph paper from the table.')}</div>`;
+  for(let i=0;i<cur.pi;i++)h+=donePartHTML(i);
+  h+=`<div class="part" id="curPart">${multi?`<div class="plabel">${PL[cur.pi]} <span>${T('ข้อย่อย','Part')} ${cur.pi+1}/${Ps.length}</span></div>`:''}<div class="prompt">${p.prompt}</div>${p.graph?`<canvas class="graph qgraph" id="pGraph"></canvas>`:''}${ansHTML(p.ans)}
+    <div class="actions" id="qActs"><button class="btn primary" id="bCheck">${T('ตรวจคำตอบ','Check answer')}</button><button class="btn ghost" id="bHint">${T('คำใบ้','Hint')}</button><button class="btn ghost" id="bReveal">${T('ดูเฉลย','Show solution')}</button></div>
+    <div class="inhelp" id="lockNote" ${done?'hidden':''}>${multi?T('ทำให้ครบทุกข้อย่อย (ตอบถูก หรือกด “ดูเฉลย”) จึงจะไปข้อถัดไปได้','Finish every part (answer correctly or tap “Show solution”) before moving on.'):T('ตอบให้ถูก หรือกด “ดูเฉลย” ก่อน จึงจะไปข้อถัดไปได้','Answer correctly or tap “Show solution” before moving on.')}</div>
+    <div id="qHint" hidden></div><div id="qFb" hidden></div><div class="sol" id="qSol" hidden></div></div>`;
+  document.getElementById('qbox').innerHTML=h;
+  if(showG)plot(document.getElementById('qGraph'),q.graph);if(p.graph)plot(document.getElementById('pGraph'),p.graph);
+  document.getElementById('bPrev').addEventListener('click',()=>goTo(hi-1));
+  document.getElementById('bFwd').addEventListener('click',goNext);
+  document.querySelectorAll('#curPart .opt').forEach(b=>b.addEventListener('click',()=>{if(PS().done)return;PS().sel=Number(b.dataset.i);markSel();}));
+  document.querySelectorAll('#curPart .ain').forEach((inp,i)=>{inp.value=ps.vals[i]||'';inp.addEventListener('input',()=>{PS().vals[i]=inp.value;});inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(!PS().done)check();}});});
+  markSel();
+  document.getElementById('bCheck').addEventListener('click',check);
+  document.getElementById('bHint').addEventListener('click',()=>{PS().hint=true;showHint();});
+  document.getElementById('bReveal').addEventListener('click',()=>{if(PS().done)return;record(false);finish(false);});
+  if(ps.hint)showHint();
+  if(ps.done)finish(ps.ok,true);
+  else{if(ps.fb)fb(ps.fb[0],ps.fb[1]);const first=document.querySelector('#curPart .ain');if(first&&!review&&cur.pi===0&&window.matchMedia('(pointer:fine)').matches)first.focus({preventScroll:true});}}
+function markSel(){document.querySelectorAll('#curPart .opt').forEach(o=>{const on=Number(o.dataset.i)===PS().sel;o.classList.toggle('sel',on);o.setAttribute('aria-checked',on);});}
+function showHint(){const el=document.getElementById('qHint');el.hidden=false;el.className='fb hint';el.innerHTML=`<b>${T('คำใบ้:','Hint:')}</b> `+PQ().hint;}
+function parseNum(s){s=String(s).trim().replace(/[−–—]/g,'-').replace(/\s+/g,'').replace(/,/g,'');if(!s)return NaN;
+  if(/^-?\d+(\.\d+)?\/-?\d+(\.\d+)?$/.test(s)){const [a,b]=s.split('/').map(Number);return b===0?NaN:a/b;}
+  if(/^-?(\d+\.?\d*|\.\d+)$/.test(s))return Number(s);return NaN;}
+function fb(cls,html){const el=document.getElementById('qFb');el.hidden=false;el.className='fb '+cls;el.innerHTML=html;}
+function record(ok){const ps=PS();if(ps.recorded)return;ps.recorded=true;rec(cur.li,ok);session.n++;if(ok){session.c++;session.s++;}else session.s=0;updateStats();renderLevels();}
+function check(){const ps=PS(),a=PQ().ans;if(ps.done)return;let ok;
+  if(a.type==='mcq'){if(ps.sel===null){fb('warn',T('เลือกคำตอบก่อนกดตรวจ','Choose an answer before checking.'));return;}ok=ps.sel===a.correct;}
+  else{const ins=[...document.querySelectorAll('#curPart .ain')],vals=ins.map(i=>parseNum(i.value));
+    if(vals.some(v=>Number.isNaN(v))){fb('warn',T('กรอกคำตอบเป็นตัวเลขให้ครบทุกช่อง เช่น -3, 2.5 หรือ 5/2','Enter a number in every box, e.g. -3, 2.5 or 5/2.'));return;}
+    const {vals:exp,tols}=expected(a);
+    if(a.unordered){const s1=[...vals].sort((x,y)=>x-y),s2=exp.map((v,i)=>[v,tols[i]]).sort((x,y)=>x[0]-y[0]);ok=s1.every((v,i)=>Math.abs(v-s2[i][0])<=s2[i][1]);ins.forEach(i=>{i.classList.toggle('bad',!ok);i.classList.toggle('ok',ok);});}
+    else{const each=vals.map((v,i)=>Math.abs(v-exp[i])<=tols[i]);ok=each.every(Boolean);ins.forEach((inp,i)=>{inp.classList.toggle('bad',!each[i]);inp.classList.toggle('ok',each[i]);});}}
+  ps.att++;record(ok);
+  if(ok)finish(true);else if(ps.att>=2)finish(false);
+  else{ps.fb=['bad',T('<b>ยังไม่ถูก</b> ช่องที่เป็นสีแดงยังไม่ถูก ลองตรวจอีกครั้งหรือกด “คำใบ้” ถ้าผิดอีกครั้งจะแสดงเฉลยพร้อมวิธีทำ','<b>Not quite.</b> The red boxes are wrong. Check again or tap “Hint”. If the next try is also wrong, the worked solution is shown.')];fb(...ps.fb);}}
+function finish(ok,restoring){const ps=PS(),p=PQ(),a=p.ans,Ps=cur.q.parts,last=cur.pi===Ps.length-1;ps.done=true;ps.ok=ok;
+  fb(ok?'good':'bad',ok?`<b>${T('ถูกต้อง','Correct!')}</b>${!restoring&&session.s>=3?T(' · ถูกติดกัน ',' · ')+session.s+T(' ข้อ',' in a row'):''}`:`<b>${T('เฉลย:','Answer:')}</b> ${answerText(a)}`);
+  if(a.type==='mcq')document.querySelectorAll('#curPart .opt').forEach((o,i)=>{o.disabled=true;if(i===a.correct)o.classList.add('right');else if(i===ps.sel)o.classList.add('wrong');});
+  else if(a.type==='table'){document.querySelectorAll('#curPart .ain').forEach((inp,i)=>{inp.readOnly=true;if(!ok&&!inp.value)inp.placeholder=num(a.ys[a.blanks[i]]);});}
+  else document.querySelectorAll('#curPart .ain').forEach(inp=>{inp.readOnly=true;if(ok)inp.classList.add('ok');});
+  const sol=document.getElementById('qSol');sol.hidden=false;
+  sol.innerHTML=`<h3>${T('วิธีทำ','Worked solution')}</h3><ol>${p.steps.map(s=>`<li>${s}</li>`).join('')}</ol>${p.solGraph?`<canvas class="graph qgraph" id="solGraph" style="margin-top:12px" aria-label="${T('กราฟประกอบเฉลย','Graph for the solution')}"></canvas>`:''}`;
+  if(p.solGraph)plot(document.getElementById('solGraph'),p.solGraph);
+  const acts=document.getElementById('qActs');
+  if(!last){acts.innerHTML=`<button class="btn primary" id="bPart">${T('ข้อย่อยถัดไป','Next part')} ${PL[cur.pi+1]} →</button>`;
+    document.getElementById('bPart').addEventListener('click',()=>{cur.pi++;drawQ();const cp=document.getElementById('curPart');if(cp)cp.scrollIntoView({block:'start',behavior:'smooth'});});
+    if(!restoring)document.getElementById('bPart').focus({preventScroll:true});}
+  else{const review=hi<hist.length-1;acts.innerHTML=`${hi>0?`<button class="btn ghost" id="bPrev2">${T('← ข้อก่อนหน้า','← Previous')}</button>`:''}<button class="btn primary" id="bNext">${review?T('ข้อถัดไป →','Next →'):T('ข้อใหม่ →','New question →')}</button>`;
+    const p2=document.getElementById('bPrev2');if(p2)p2.addEventListener('click',()=>goTo(hi-1));
+    const nb=document.getElementById('bNext');nb.addEventListener('click',goNext);if(!restoring)nb.focus({preventScroll:true});
+    const fw=document.getElementById('bFwd');if(fw){fw.disabled=false;fw.removeAttribute('title');}const ln=document.getElementById('lockNote');if(ln)ln.hidden=true;}
+  const sw=document.getElementById('stWrap');if(sw)sw.innerHTML=statusHTML();}
+
+const rb=document.getElementById('resetBtn');let rbT;
+rb.addEventListener('click',()=>{if(rb.classList.contains('armed')){prog={};saveProg();rb.classList.remove('armed');rb.textContent='Reset';renderLevels();clearTimeout(rbT);return;}
+  rb.classList.add('armed');rb.textContent='Tap again to confirm';rbT=setTimeout(()=>{rb.classList.remove('armed');rb.textContent='Reset';},3500);});
+
+/* ===================== notes graphs ===================== */
+plot(document.getElementById('nG1'),{xr:[-5,5],yr:[-6,6],sx:1,curves:[{f:x=>0.5*x*x-1.5*x-2},{f:x=>-x*x-x+4,color:'l2'}],points:[{x:1.5,y:-3.125,label:'minimum'},{x:-0.5,y:4.25,label:'maximum',color:'l2'}],vlines:[]});
+plot(document.getElementById('nG2'),{xr:[-3,6],yr:[-4,6],sx:1,curves:[{f:x=>(x-2)**2-3}],vlines:[{x:2,label:'x = h'}],points:[{x:2,y:-3,label:'(h, k)'}]});
+plot(document.getElementById('nG3'),{xr:[-4,5],yr:[-7,5],sx:1,curves:[{f:x=>(x+1)*(x-3)}],vlines:[{x:1,label:'x = (p + q) ÷ 2'}],points:[{x:-1,y:0,label:'p'},{x:3,y:0,label:'q'},{x:0,y:-3,label:'pq'}]});
+
+/* ===================== CT strings */
+const CT={
+ eEmpty:'Type an equation first, e.g. x^2 - 4x + 3',eEq:'Type only the right-hand side of y =, e.g. 2x^2 + 3x - 1',
+ eNum:t=>`“${t}” is not a valid number.`,eChar:ch=>`“${ch}” can’t be used. Use only x, numbers, + − * / ^ and brackets.`,
+ eDivX:'You can’t divide by a term containing x. A quadratic function has no x in a denominator.',eDiv0:'You can’t divide by 0.',eParen:'Brackets don’t match. Check that every bracket is opened and closed.',
+ eExp:'Powers must be whole numbers, e.g. x^2.',eEnd:'The equation ends too early. Check the last sign.',eTok:t=>`“${t}” is in the wrong place.`,
+ eLinear:'The highest power of x is 1, so this is a linear function, not a quadratic. It needs an x² term with a ≠ 0.',
+ eConst:'There is no x term at all, so this is a constant function, not a quadratic.',
+ eDeg:d=>`After expanding, the highest power of x is ${d}, so this is not a quadratic function (the highest power must be 2).`,eGeneric:'This equation can’t be read. Check what you typed.',
+ sForm:(e,a,b,c,ch)=>`${ch?'Expand and rearrange into the general form':'The equation is already in the general form'} ${M('<i>y</i> = <i>ax</i><sup>2</sup> + <i>bx</i> + <i>c</i>')}: ${e}, so ${M('<i>a</i> = '+a)}, ${M('<i>b</i> = '+b)}, ${M('<i>c</i> = '+c)}.`,
+ sDir:(a,fa)=>a>0?`${M('<i>a</i> = '+fa+' &gt; 0')}, so the graph opens upwards and the turning point is a <b>minimum point</b>.`:`${M('<i>a</i> = '+fa+' &lt; 0')}, so the graph opens downwards and the turning point is a <b>maximum point</b>.`,
+ sWidth:(aa,fa)=>Math.abs(aa-1)<1e-9?`${M('|<i>a</i>| = 1')}, so the graph is the same width as ${Y('<i>x</i><sup>2</sup>')}.`:aa>1?`${M('|<i>a</i>| = '+fa+' &gt; 1')}, so the graph is narrower than ${Y('<i>x</i><sup>2</sup>')}.`:`${M('|<i>a</i>| = '+fa+' &lt; 1')}, so the graph is wider than ${Y('<i>x</i><sup>2</sup>')}.`,
+ sYint:c=>`y-intercept: substitute ${M('<i>x</i> = 0')} to get ${M('<i>y</i> = <i>c</i> = '+c)}. The graph cuts the y-axis at ${M('(0, '+c+')')}.`,
+ sSym:e=>`Line of symmetry: ${e}`,
+ sTp:(e,h,k,min)=>`The turning point lies on the line of symmetry. Substitute ${M('<i>x</i> = '+h)}: ${e}. So the turning point is ${M('('+h+', '+k+')')} and the ${min?'minimum':'maximum'} value of y is <b>${k}</b> (every y-value is ${min?'≥':'≤'} ${k}).`,
+ sMirror:(c,x2,h)=>`Use symmetry: reflecting ${M('(0, '+c+')')} in the line ${M('<i>x</i> = '+h)} gives ${M('('+x2+', '+c+')')}, which is also on the graph.`,
+ sVtx:(e,ap)=>`Completed-square form: ${e}${ap?' (approximate values)':''}`,
+ sDisc:e=>`Count the x-intercepts: ${e}`,
+ sTwo:(e,r1,r2)=>`${M('<i>b</i><sup>2</sup> − 4<i>ac</i> &gt; 0')}, so the graph cuts the x-axis twice. Using ${M('<i>x</i> = (−<i>b</i> ± √(<i>b</i><sup>2</sup> − 4<i>ac</i>)) ÷ 2<i>a</i>')}: ${e}, giving ${M('<i>x</i> = '+r1)} and ${M('<i>x</i> = '+r2)}.`,
+ sFac:(e,ap,eq,r1,r2)=>`Factorised form: ${e}${ap?' (approximate values)':''}. So ${eq} has 2 roots: ${r1} and ${r2}.`,
+ sOne:(h,e,eq)=>`${M('<i>b</i><sup>2</sup> − 4<i>ac</i> = 0')}, so the graph touches the x-axis once, at ${M('<i>x</i> = '+h)}. It can be written ${e}, and ${eq} has repeated roots.`,
+ sNone:eq=>`${M('<i>b</i><sup>2</sup> − 4<i>ac</i> &lt; 0')}, so the graph never meets the x-axis. ${eq} has no real roots and cannot be factorised over the real numbers.`
+};
+
+/* ===================== custom function ===================== */
+function parsePoly(src){
+  let s=String(src).toLowerCase().replace(/[−–—]/g,'-').replace(/[×·]/g,'*').replace(/÷/g,'/').replace(/²/g,'^2').replace(/³/g,'^3').replace(/\s+/g,'');
+  s=s.replace(/^(y|f\(x\))=/,'');
+  if(!s)throw CT.eEmpty;
+  if(s.includes('='))throw CT.eEq;
+  const tk=[];let i=0;
+  while(i<s.length){const ch=s[i];
+    if(/[0-9.]/.test(ch)){let j=i;while(j<s.length&&/[0-9.]/.test(s[j]))j++;const t=s.slice(i,j);if(!/^(\d+\.?\d*|\.\d+)$/.test(t))throw CT.eNum(t);tk.push({t:'n',v:Number(t)});i=j;continue;}
+    if(ch==='x'){tk.push({t:'x'});i++;continue;}
+    if('+-*/^()'.includes(ch)){tk.push({t:ch});i++;continue;}
+    throw CT.eChar(ch);}
+  let p=0;const peek=()=>tk[p],eat=t=>{if(tk[p]&&tk[p].t===t){p++;return true;}return false;};
+  const norm=a=>{a=a.map(v=>Math.abs(v)<1e-12?0:v);while(a.length>1&&a[a.length-1]===0)a.pop();return a;};
+  const add=(A,B,sg)=>{const n=Math.max(A.length,B.length),r=[];for(let k=0;k<n;k++)r.push((A[k]||0)+sg*(B[k]||0));return norm(r);};
+  const mul=(A,B)=>{const r=new Array(A.length+B.length-1).fill(0);A.forEach((u,i)=>B.forEach((v,j)=>{r[i+j]+=u*v;}));return norm(r);};
+  function expr(){let v=term();while(peek()&&(peek().t==='+'||peek().t==='-')){const op=tk[p++].t;v=add(v,term(),op==='+'?1:-1);}return v;}
+  function term(){let v=unary();for(;;){const t=peek();if(!t)break;
+    if(t.t==='*'){p++;v=mul(v,unary());}
+    else if(t.t==='/'){p++;const d=unary();if(d.length>1)throw CT.eDivX;if(d[0]===0)throw CT.eDiv0;v=v.map(c=>c/d[0]);}
+    else if(t.t==='x'||t.t==='('||t.t==='n'){v=mul(v,power());}
+    else break;}return v;}
+  function unary(){if(eat('-'))return unary().map(c=>-c);if(eat('+'))return unary();return power();}
+  function power(){let b=primary();if(eat('^')){let e;
+      if(eat('(')){e=expr();if(!eat(')'))throw CT.eParen;}
+      else{const neg=eat('-'),t=tk[p++];if(!t||t.t!=='n')throw CT.eExp;e=[neg?-t.v:t.v];}
+      if(e.length>1||!Number.isInteger(e[0])||e[0]<0||e[0]>6)throw CT.eExp;
+      let r=[1];for(let k=0;k<e[0];k++)r=mul(r,b);b=r;}
+    return b;}
+  function primary(){const t=tk[p++];if(!t)throw CT.eEnd;
+    if(t.t==='n')return [t.v];if(t.t==='x')return [0,1];
+    if(t.t==='('){const v=expr();if(!eat(')'))throw CT.eParen;return v;}
+    throw CT.eTok(t.t);}
+  const v=expr();if(p<tk.length)throw CT.eTok(tk[p].t);
+  return v.map(c=>Math.round(c*1e9)/1e9);}
+function analyseInput(src){const c=parsePoly(src),deg=c.length-1;
+  if(deg===2)return {a:c[2],b:c[1]||0,c:c[0]||0};
+  if(deg<2)throw (deg===1?CT.eLinear:CT.eConst);
+  throw CT.eDeg(deg);}
+function fr(x){if(!isFinite(x))return '—';for(let d=1;d<=12;d++){const n=Math.round(x*d);if(Math.abs(n/d-x)<1e-9)return d===1?num(n):frac(n,d);}return approx(x);}
+function plainNum(v){return String(Math.round(v*10000)/10000);}
+function plainPoly(a,b,c){let s='';const T=[[a,'x^2'],[b,'x'],[c,'']];T.forEach(([k,v])=>{if(Math.abs(k)<1e-12)return;const neg=k<0,ab=Math.abs(k),body=v&&ab===1?v:plainNum(ab)+v;s+=s===''?(neg?'-':'')+body:(neg?' - ':' + ')+body;});return s||'0';}
+function explainSteps(a,b,c,changed){const h=-b/(2*a),k=a*h*h+b*h+c,D=b*b-4*a*c,L=[];
+  L.push(CT.sForm(Y(P(a,b,c)),fr(a),fr(b),fr(c),changed));
+  L.push(CT.sDir(a,fr(a)));
+  L.push(CT.sWidth(Math.abs(a),fr(Math.abs(a))));
+  L.push(CT.sYint(fr(c)));
+  L.push(CT.sSym(M(`<i>x</i> = −<i>b</i> ÷ 2<i>a</i> = −(${num(b)}) ÷ (2 × ${num(a)}) = ${fr(h)}`)));
+  L.push(CT.sTp(M(`<i>y</i> = ${subst(a,b,c,Math.round(h*1000)/1000)} = ${fr(k)}`),fr(h),fr(k),a>0));
+  if(Math.abs(h)>1e-9)L.push(CT.sMirror(fr(c),fr(2*h),fr(h)));
+  const rh=Math.round(h*1000)/1000,rk=Math.round(k*1000)/1000;
+  L.push(CT.sVtx(Y(vForm(a,rh,rk)),Math.abs(rh-h)>1e-9||Math.abs(rk-k)>1e-9));
+  L.push(CT.sDisc(M(`<i>b</i><sup>2</sup> − 4<i>ac</i> = (${num(b)})<sup>2</sup> − 4(${num(a)})(${num(c)}) = ${fr(D)}`)));
+  if(D>1e-12){const sD=Math.sqrt(D),r1=Math.min((-b-sD)/(2*a),(-b+sD)/(2*a)),r2=Math.max((-b-sD)/(2*a),(-b+sD)/(2*a)),exact=Math.abs(Math.round(sD*1e6)/1e6-Math.round(sD))<1e-9;
+    const sqrtTxt=exact?num(Math.round(sD)):`√${fr(D)}`;
+    L.push(CT.sTwo(M(`<i>x</i> = (${num(-b)} ± ${sqrtTxt}) ÷ ${num(2*a)}`),fr(r1),fr(r2)));
+    const ex=[r1,r2].every(r=>Math.abs(Math.round(r*1000)/1000-r)<1e-9);
+    L.push(CT.sFac(Y(facForm(a,Math.round(r1*100)/100,Math.round(r2*100)/100)),!ex,M(P(a,b,c)+' = 0'),fr(r1),fr(r2)));}
+  else if(Math.abs(D)<=1e-12)L.push(CT.sOne(fr(h),Y(facForm(a,rh,rh)),M(P(a,b,c)+' = 0')));
+  else L.push(CT.sNone(M(P(a,b,c)+' = 0')));
+  return L;}
+function customSpec(a,b,c){const f=x=>a*x*x+b*x+c,h=-b/(2*a),k=f(h),D=b*b-4*a*c;let d=Math.abs(h);
+  if(D>=0){const sD=Math.sqrt(D);[(-b-sD)/(2*a),(-b+sD)/(2*a)].forEach(r=>{d=Math.max(d,Math.abs(r-h));});}
+  const half=Math.max(d+1.5,3/Math.sqrt(Math.abs(a))+1,3);
+  const xr=[h-half,h+half],ys=[k,c,f(xr[0]),f(xr[1]),0],lo=Math.min(...ys),hi=Math.max(...ys),pd=Math.max(0.8,(hi-lo)*0.08);
+  return {xr,yr:[lo-pd,hi+pd],curves:[],points:[],vlines:[],hlines:[]};}
+let fnT;
+function applyCustom(immediate){const inp=document.getElementById('fnIn'),err=document.getElementById('fnErr');
+  clearTimeout(fnT);const run=()=>{try{const r=analyseInput(inp.value);const std=plainPoly(r.a,r.b,r.c).replace(/\s/g,''),typed=inp.value.toLowerCase().replace(/\s/g,'').replace(/^(y|f\(x\))=/,'').replace(/[−–—]/g,'-');
+      EX.custom={a:r.a,b:r.b,c:r.c,changed:std!==typed};err.hidden=true;inp.classList.remove('bad');exUpdate();}
+    catch(e){err.hidden=false;err.innerHTML=typeof e==='string'?e:CT.eGeneric;inp.classList.add('bad');}};
+  if(immediate)run();else fnT=setTimeout(run,450);}
+document.getElementById('fnIn').addEventListener('input',()=>applyCustom(false));
+document.getElementById('fnIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();applyCustom(true);}});
+document.getElementById('fnGo').addEventListener('click',()=>applyCustom(true));
+document.querySelectorAll('.exchip').forEach(b=>b.addEventListener('click',()=>{document.getElementById('fnIn').value=b.dataset.f;applyCustom(true);}));
+
+/* ===================== boot ===================== */
+buildSliders();exUpdate();renderLevels();updateStats();
+const hashTab=(location.hash||'').slice(1);if(TABS.includes(hashTab))showTab(hashTab);if(hashTab==='custom')exSetMode('custom');
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',redrawAll);}catch(e){}
+new MutationObserver(redrawAll).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','class']});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(redrawAll);
+</script>
+
+</body>
+</html>
